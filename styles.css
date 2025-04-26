@@ -1,0 +1,537 @@
+/* Reset and Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: url('https://www.transparenttextures.com/patterns/dark-mosaic.png') repeat, linear-gradient(to bottom, #1c1c2e, #2c003e);
+    color: #d4d4d8;
+    font-family: 'Crimson Text', serif;
+    text-align: center;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Container */
+.container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+/* Headings */
+h1 {
+    font-family: 'Cinzel', serif;
+    color: #b897d6;
+    font-size: 3em;
+    text-shadow: 0 0 10px rgba(184, 151, 214, 0.5);
+    margin-bottom: 30px;
+    border-bottom: 2px solid #4c2f6b;
+    padding-bottom: 10px;
+}
+
+h2 {
+    font-family: 'Cinzel', serif;
+    color: #b897d6;
+    font-size: 2em;
+    margin-bottom: 20px;
+}
+
+/* Form Styling */
+.form {
+    background: #1c1c2e;
+    border: 3px solid #4c2f6b;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 40px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    display: flex; /* Use flexbox for layout */
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+}
+
+.form label {
+     width: 100%; /* Labels take full width */
+     text-align: left; /* Align label text left */
+     font-family: 'Cinzel', serif;
+     color: #b897d6;
+     font-size: 1.2em;
+     margin: 15px 0 8px;
+}
+
+
+.form select,
+.form input[type="text"],
+.form input[type="date"] { /* Added type="date" */
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #4c2f6b;
+    border-radius: 8px;
+    background: #2a2a4e;
+    color: #d4d4d8;
+    font-family: 'Crimson Text', serif;
+    font-size: 1.1em;
+}
+
+/* Style for the checkbox wrapper */
+.checkbox-wrapper {
+    width: 100%; /* Take full width */
+    text-align: left; /* Align content left */
+    margin-bottom: 20px; /* Space before the button */
+    display: flex; /* Use flexbox for label and checkbox */
+    align-items: center; /* Vertically align */
+}
+
+.checkbox-wrapper label {
+    margin: 0 10px 0 0; /* Space between label and checkbox */
+    font-size: 1em; /* Slightly smaller font for inline label */
+    display: inline-block; /* Make label inline */
+    width: auto; /* Auto width */
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+    margin: 0; /* Remove margin */
+    accent-color: #b897d6;
+    width: auto; /* Auto width */
+    margin-bottom: 0; /* Remove bottom margin */
+}
+
+
+.form button {
+    padding: 12px 30px;
+    background: linear-gradient(to bottom, #4c2f6b, #6b4c8a);
+    color: #d4d4d8;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    width: auto; /* Auto width for button */
+}
+
+button:hover {
+    background: linear-gradient(to bottom, #6b4c8a, #8a6ba9);
+    transform: scale(1.05);
+}
+
+/* Reading Section */
+#reading {
+    margin-top: 30px;
+}
+
+#personalInfoDisplay { /* Style for personal info */
+    color: #b897d6;
+    font-style: italic;
+    margin-bottom: 15px;
+}
+
+
+.instructions {
+    font-style: italic;
+    color: #b897d6;
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+/* Shuffle Animation */
+.shuffle-animation {
+    position: relative;
+    width: 150px;
+    height: 250px;
+    margin: 20px auto;
+    display: none;
+}
+
+.shuffle-card {
+    position: absolute;
+    width: 150px;
+    height: 250px;
+    background: url('images/card_back.jpg') center/cover no-repeat;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes shuffle {
+    0% { transform: translateX(0) rotate(0deg); }
+    25% { transform: translateX(-20px) rotate(-5deg); }
+    50% { transform: translateX(20px) rotate(5deg); }
+    75% { transform: translateX(-10px) rotate(-3deg); }
+    100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* Card Layout and Flip Animation */
+#cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 25px;
+    margin: 30px 0;
+}
+
+.flip-container {
+    perspective: 1000px;
+    width: 150px;
+    height: 250px;
+    opacity: 0;
+}
+
+.flip-container.deal {
+    animation: deal 0.5s ease-out forwards;
+}
+
+@keyframes deal {
+    0% { transform: translateY(-100vh) rotate(10deg); opacity: 0; }
+    100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+
+.flipper {
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.front, .back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    border: 2px solid #4c2f6b;
+    overflow: hidden; /* Ensure content doesn't overflow */
+}
+
+.front {
+    z-index: 2;
+    transform: rotateY(0deg);
+    background: #2a2a4e url('images/card_back.jpg') center/cover no-repeat; /* Use background for back image */
+    display: flex; /* Use flexbox to center content if needed */
+    justify-content: center;
+    align-items: center;
+}
+
+.back {
+    transform: rotateY(180deg);
+    background: #ffffff; /* Default white, will be overridden by card color */
+    color: #2c003e;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align content to top */
+    position: relative; /* Needed for absolute positioning of fallback content */
+}
+
+.flip-container.flipped .flipper {
+    transform: rotateY(180deg);
+}
+
+/* Card Face Images inside the .back div */
+.back img {
+    width: 100%;
+    height: auto;
+    max-height: 230px; /* Allow it to be almost full height */
+    object-fit: contain; /* Maintain aspect ratio */
+    border-radius: 5px;
+    margin-bottom: 5px; /* Space below image */
+    display: block; /* Ensure it's a block element */
+    position: relative; /* Position above fallback if both exist */
+    z-index: 2; /* Ensure image is on top if visible */
+}
+
+/* Fallback content styles */
+.back .fallback-content {
+    position: absolute; /* Position absolutely to fill .back */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex; /* Use flexbox for internal layout */
+    flex-direction: column;
+    justify-content: space-between; /* Space out elements */
+    align-items: center;
+    padding: 15px 5px; /* Add padding */
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    color: #000; /* Default text color */
+    z-index: 1; /* Position below the image */
+}
+
+/* Hide fallback content by default, show only when .show-fallback is present */
+.back .fallback-content {
+    display: none;
+}
+
+.back.show-fallback .fallback-content {
+    display: flex; /* Show fallback content */
+}
+
+.back.show-fallback img.card-face-img {
+     display: none; /* Hide the image when fallback is shown */
+}
+
+
+.card-rank {
+    font-size: 2.5em; /* Large rank */
+    font-weight: bold;
+    flex-grow: 1; /* Allow rank to take up middle space */
+    display: flex;
+    align-items: center; /* Vertically center rank */
+    justify-content: center; /* Horizontally center rank */
+}
+
+.card-name {
+    font-size: 0.9em; /* Card name below rank */
+    margin-top: 5px;
+}
+
+.suit-symbol {
+    font-size: 2em; /* Suit symbols */
+    line-height: 1; /* Tight line height */
+}
+
+.suit-symbol-bottom {
+    transform: rotate(180deg); /* Rotate bottom symbol */
+}
+
+
+/* Modal for Card Details */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #1c1c2e;
+    border: 3px solid #4c2f6b;
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 0 20px rgba(184, 151, 214, 0.3);
+    max-height: 90vh; /* Limit modal height */
+    overflow-y: auto; /* Add scrolling if needed */
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5em;
+    color: #b897d6;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #d4d4d8;
+}
+
+#modalCard {
+    width: 200px; /* Fixed width for card representation in modal */
+    height: 300px; /* Fixed height */
+    margin: 0 auto 15px auto; /* Center and add space below */
+    border: 2px solid #4c2f6b;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative; /* Needed for absolute positioning of fallback */
+     background: #ffffff; /* Default background, will be overridden */
+}
+
+#modalCard img#modalCardImage { /* Style for the image inside modal card */
+    width: 100%;
+    height: 100%; /* Image fills the container */
+    object-fit: contain; /* Maintain aspect ratio */
+    border: none; /* Remove border */
+    border-radius: none; /* Remove border radius */
+    max-height: none; /* Remove max-height constraint */
+     position: absolute; /* Position above fallback */
+    top: 0;
+    left: 0;
+    z-index: 2;
+}
+
+#modalCard .fallback-content { /* Style for fallback content inside modal card */
+     position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none; /* Hidden by default */
+     flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10px;
+    font-family: 'Cinzel', serif;
+    text-align: center;
+    color: #000;
+    z-index: 1;
+}
+
+#modalCard.show-fallback .fallback-content { /* Show fallback if needed */
+     display: flex;
+}
+
+#modalCard.show-fallback img#modalCardImage { /* Hide image if fallback is shown */
+     display: none;
+}
+
+#modalCard .card-rank { font-size: 3em; font-weight: bold; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+#modalCard .card-name { font-size: 1.1em; margin-top: 5px;}
+#modalCard .suit-symbol { font-size: 2.5em; line-height: 1; }
+#modalCard .suit-symbol-bottom { transform: rotate(180deg); }
+
+
+#modalCardName {
+    font-family: 'Cinzel', serif;
+    color: #b897d6;
+    font-size: 1.8em;
+    margin-bottom: 5px; /* Reduced margin */
+}
+
+#modalCardColor { /* Style for color text in modal */
+    font-style: italic;
+    color: #8a6ba9;
+    margin-bottom: 10px;
+    font-size: 1em;
+}
+
+#modalCardDescription, #modalCardMeaning, #modalCardContext {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    text-align: left; /* Align text left */
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .flip-container {
+        width: 120px;
+        height: 200px;
+    }
+     .front, .back, .shuffle-card { /* Adjust shuffle card size too */
+        width: 120px;
+        height: 200px;
+    }
+    .form {
+        padding: 15px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    #modalCard { /* Adjust modal card size */
+        width: 150px;
+        height: 225px;
+    }
+     #modalCard .card-rank { font-size: 2em; } /* Adjust fallback text size */
+     #modalCard .card-name { font-size: 0.9em; }
+     #modalCard .suit-symbol { font-size: 2em; }
+
+    .modal-content {
+        padding: 15px;
+    }
+
+}
+#interpret,
+#newReading {
+    display: block; /* Make them block elements to stack */
+    margin: 20px auto; /* Add top margin and center them horizontally */
+    width: auto; /* Allow width to adjust to content */
+}
+
+/* Ensure they use the general button style */
+#interpret,
+#newReading,
+.form button {
+    padding: 12px 30px;
+    background: linear-gradient(to bottom, #4c2f6b, #6b4c8a);
+    color: #d4d4d8;
+    border: none;
+    border-radius: 8px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+#interpret:hover,
+#newReading:hover,
+.form button:hover {
+    background: linear-gradient(to bottom, #6b4c8a, #8a6ba9);
+    transform: scale(1.05);
+}
+
+/* Add this block to your existing CSS */
+
+/* Style for the question display area on the reading page */
+#questionDisplay {
+    color: #b897d6; /* Match personal info color */
+    font-style: italic; /* Match personal info style */
+    margin-bottom: 20px; /* Add space below */
+    font-size: 1.1em; /* Slightly larger font */
+}
+
+
+/* Style for the interpretation output area */
+#interpretation {
+    text-align: left; /* Align text left for readability */
+    background: #1c1c2e; /* Match form background */
+    border: 3px solid #4c2f6b; /* Match form border */
+    border-radius: 10px; /* Match form border radius */
+    padding: 25px; /* Add padding */
+    margin-top: 40px; /* Add space above */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7); /* Match form shadow */
+    color: #d4d4d8; /* Base text color */
+}
+
+/* Styles for HTML elements within the interpretation div */
+#interpretation h2 {
+    font-family: 'Cinzel', serif;
+    color: #b897d6;
+    font-size: 1.8em; /* Slightly smaller than main H2 */
+    margin-top: 20px; /* Space above section headers */
+    margin-bottom: 15px;
+    border-bottom: 1px solid #4c2f6b; /* Subtle separator */
+    padding-bottom: 5px;
+}
+
+#interpretation p {
+    margin-bottom: 15px; /* Space between paragraphs */
+    line-height: 1.6; /* Improve readability */
+}
+
+#interpretation ul {
+    margin-bottom: 15px; /* Space below lists */
+    padding-left: 25px; /* Indent list items */
+}
+
+#interpretation li {
+    margin-bottom: 8px; /* Space between list items */
+    line-height: 1.5; /* Improve readability */
+}
+
+#interpretation strong {
+    color: #b897d6; /* Highlight strong text */
+}
+
+/* Ensure list items don't have default list styles if you don't want them */
+/* #interpretation ul { list-style: none; padding: 0; } */
+/* #interpretation li { padding-left: 0; } */
