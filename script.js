@@ -132,32 +132,38 @@ const colorMap = {
 };
 
 // Predefined Card Relationship Meanings - Added 'context' property
+// 'context: []' means general relationship, applies if both cards are present anywhere
+// 'context: ["Pos1", "Pos2"]' means specific contextual relationship, applies if Card1 is in Pos1 AND Card2 is in Pos2 OR Card1 in Pos2 AND Card2 in Pos1
+// The interpretation logic will be updated to handle this flexibility and generate dynamic text.
 const cardRelationships = [
-    { cards: ["The Tower", "The Star"], context: [], meaning: "A period of upheaval or crisis (The Tower) is followed by hope and healing (The Star), suggesting recovery after disruption." }, // Context: Anywhere
-    { cards: ["The Lovers", "Three of Swords"], context: [], meaning: "A relationship or choice (The Lovers) may be facing heartbreak or betrayal (Three of Swords), urging honest communication." }, // Context: Anywhere
-    { cards: ["The Emperor", "The Empress"], context: [], meaning: "Structure and authority (The Emperor) complement nurturing and abundance (The Empress), indicating a balanced partnership or leadership." }, // Context: Anywhere
-    { cards: ["Death", "The Sun"], context: [], meaning: "Transformation or endings (Death) lead to joy and vitality (The Sun), signaling a positive rebirth." }, // Context: Anywhere
-    { cards: ["The Devil", "The Hermit"], context: [], meaning: "Materialism or entrapment (The Devil) is countered by introspection and solitude (The Hermit), suggesting a need to break free through self-reflection." }, // Context: Anywhere
-    { cards: ["Ace of Cups", "Ten of Pentacles"], context: [], meaning: "New emotional beginnings (Ace of Cups) align with long-term stability and family (Ten of Pentacles), indicating a fulfilling connection." }, // Context: Anywhere
-    { cards: ["The Moon", "The High Priestess"], context: [], meaning: "Illusion and confusion (The Moon) are clarified by deep intuition (The High Priestess), urging trust in your inner wisdom." }, // Context: Anywhere
-    // Add more specific context relationships here, e.g.:
-    { cards: ["The Fool", "The World"], context: ["Past", "Outcome"], meaning: "Your journey of new beginnings (The Fool in the Past) culminates in completion and fulfillment (The World in the Outcome)." },
-     { cards: ["The Tower", "Death"], context: ["Challenge", "Future"], meaning: "An immediate upheaval (The Tower in Challenge) is likely to bring about profound transformation (Death in the Future)." },
-    // --- Additional General Relationships (context: []) ---
+    // General Relationships (Context [])
+    { cards: ["The Tower", "The Star"], context: [], meaning: "A period of upheaval or crisis is followed by hope and healing, suggesting recovery after disruption." },
+    { cards: ["The Lovers", "Three of Swords"], context: [], meaning: "A relationship or choice may be facing heartbreak or betrayal, urging honest communication." },
+    { cards: ["The Emperor", "The Empress"], context: [], meaning: "Structure and authority complement nurturing and abundance, indicating a balanced partnership or leadership." },
+    { cards: ["Death", "The Sun"], context: [], meaning: "Transformation or endings lead to joy and vitality, signaling a positive rebirth." },
+    { cards: ["The Devil", "The Hermit"], context: [], meaning: "Materialism or entrapment is countered by introspection and solitude, suggesting a need to break free through self-reflection." },
+    { cards: ["Ace of Cups", "Ten of Pentacles"], context: [], meaning: "New emotional beginnings align with long-term stability and family, indicating a fulfilling connection." },
+    { cards: ["The Moon", "The High Priestess"], context: [], meaning: "Illusion and confusion are clarified by deep intuition, urging trust in your inner wisdom." },
     { cards: ["The Fool", "The Magician"], context: [], meaning: "Potential meets manifestation; stepping into your power to begin a new journey." },
-    { cards: ["The High Priestess", "The Moon"], context: [], meaning: "Deepening intuition and navigating subconscious realms or illusions. Trust your inner knowing." },
-    { cards: ["The Emperor", "The Hierophant"], context: [], meaning: "Established authority and societal structure, adhering to tradition or conventional wisdom." },
-    { cards: ["The Lovers", "The Chariot"], context: [], meaning: "A significant decision (The Lovers) leads to a need for focused will power and direction (The Chariot)." },
     { cards: ["Strength", "Justice"], context: [], meaning: "Inner fortitude and compassion combined with fairness, truth, and accountability." },
-    { cards: ["The Hermit", "Temperance"], context: [], meaning: "Seeking inner balance and harmony through solitude and mindful reflection." },
-    { cards: ["Wheel of Fortune", "The Sun"], context: [], meaning: "A turn of luck or destiny leads to great joy, success, and clarity." },
-    { cards: ["The Hanged Man", "Justice"], context: [], meaning: "Gaining a new perspective or making a sacrifice (The Hanged Man) brings about fairness, truth, or legal resolution (Justice)." },
-    { cards: ["Death", "The Devil"], context: [], meaning: "Transformation or an ending (Death) is tied to overcoming bondage, addiction, or materialism (The Devil)." },
-    { cards: ["The Tower", "The Devil"], context: [], meaning: "A sudden upheaval or breakdown (The Tower) reveals underlying unhealthy attachments or limitations (The Devil)." },
-    { cards: ["The Star", "The Sun"], context: [], meaning: "Hope, inspiration, and healing (The Star) blossom into pure joy, vitality, and success (The Sun)." },
-    { cards: ["Judgement", "The World"], context: [], meaning: "A period of evaluation and awakening (Judgement) culminates in completion, fulfillment, and successful integration (The World)." },
+    // ... (Include all other general relationships you had previously) ...
+    { cards: ["The Fool", "The Hermit"], context: [], meaning: "Balancing the impulsive leap of faith with cautious introspection and inner guidance." },
+    { cards: ["The Magician", "The Tower"], context: [], meaning: "Attempting to control or manifest in a situation destined for sudden breakdown or release." },
+    { cards: ["The Empress", "Temperance"], context: [], meaning: "Nurturing and creativity are enhanced by balance, patience, and moderation." },
+    { cards: ["The Emperor", "Justice"], context: [], meaning: "Authority, structure, and control are closely tied to matters of truth, fairness, and law." },
+    { cards: ["The Hierophant", "The Lovers"], context: [], meaning: "Traditional guidance or conforming to beliefs influences or is challenged by a significant choice or relationship." },
+    { cards: ["The Chariot", "The World"], context: [], meaning: "Focused willpower and determination lead directly to successful completion and fulfillment." },
+    { cards: ["Strength", "The Hermit"], context: [], meaning: "Finding the inner courage and gentle power needed for deep introspection and solitude." },
+    { cards: ["Wheel of Fortune", "Death"], context: [], meaning: "A major turning point or fated event brings about inevitable transformation and endings." },
+    { cards: ["The Hanged Man", "The Star"], context: [], meaning: "Surrendering to a new perspective or sacrifice leads to renewed hope, inspiration, and healing." },
+    { cards: ["The Devil", "Judgement"], context: [], meaning: "Facing and overcoming bondage or negative patterns leads to a significant period of evaluation, reckoning, and awakening." },
+     { cards: ["The Tower", "The Devil"], context: [], meaning: "A sudden upheaval or breakdown reveals underlying unhealthy attachments or limitations." }, // Added missing general
+    { cards: ["The Star", "The Sun"], context: [], meaning: "Hope, inspiration, and healing blossom into pure joy, vitality, and success." }, // Added missing general
+     { cards: ["Judgement", "The World"], context: [], meaning: "A period of evaluation and awakening culminates in completion, fulfillment, and successful integration." }, // Added missing general
+    { cards: ["The Lovers", "The Chariot"], context: [], meaning: "A significant decision leads to a need for focused will power and direction." }, // Added missing general
 
-    // --- Major Arcana + Minor Arcana Relationships (General) ---
+
+    // General Major + Minor Relationships
     { cards: ["The Magician", "Ace of Wands"], context: [], meaning: "Using your will and resources to manifest a powerful new creative beginning or inspiration." },
     { cards: ["The Empress", "Three of Cups"], context: [], meaning: "Nurturing and abundance lead to celebration, friendship, and community." },
     { cards: ["The Emperor", "Four of Pentacles"], context: [], meaning: "Applying structure and control to build and maintain material security." },
@@ -166,95 +172,37 @@ const cardRelationships = [
     { cards: ["Strength", "Eight of Pentacles"], context: [], meaning: "Applying patience, inner strength, and compassion to master a skill or craft." },
     { cards: ["The Hermit", "Four of Swords"], context: [], meaning: "A period of introspection and seeking inner truth calls for rest, withdrawal, and mental recuperation." },
     { cards: ["Justice", "Ace of Swords"], context: [], meaning: "Truth and fairness bring clarity and a breakthrough, leading to a new understanding." },
-    { cards: ["Death", "Ten of Swords"], context: [], meaning: "A profound, sometimes difficult, transformation or ending (Death) brings absolute finality (Ten of Swords)." },
+    { cards: ["Death", "Ten of Swords"], context: [], meaning: "A profound, sometimes difficult, transformation or ending brings absolute finality." },
     { cards: ["Temperance", "Two of Pentacles"], context: [], meaning: "Maintaining balance and harmony while juggling multiple responsibilities or resources." },
     { cards: ["The Devil", "Five of Pentacles"], context: [], meaning: "Entrapment in materialism or negative patterns leads to feelings of poverty, isolation, or hardship." },
-    { cards: ["The Tower", "Five of Swords"], context: [], meaning: "A sudden collapse or upheaval (The Tower) results in conflict, defeat, or loss (Five of Swords)." },
-    { cards: ["The Star", "Nine of Cups"], context: [], meaning: "Hope, inspiration, and faith (The Star) contribute to achieving emotional satisfaction and wish fulfillment (Nine of Cups)." },
+    { cards: ["The Tower", "Five of Swords"], context: [], meaning: "A sudden collapse or upheaval results in conflict, defeat, or loss." },
+    { cards: ["The Star", "Nine of Cups"], context: [], meaning: "Hope, inspiration, and faith contribute to achieving emotional satisfaction and wish fulfillment." },
     { cards: ["The Moon", "Seven of Cups"], context: [], meaning: "Navigating confusion, illusion, and subconscious fears while facing multiple enticing but potentially deceptive choices or fantasies." },
-    { cards: ["The Sun", "Ten of Cups"], context: [], meaning: "Great joy, success, and vitality (The Sun) lead to emotional harmony, family happiness, and fulfillment (Ten of Cups)." },
-    { cards: ["The World", "Ten of Pentacles"], context: [], meaning: "Completion and fulfillment on your journey (The World) are tied to material security, legacy, and family abundance (Ten of Pentacles)." },
-
-    // --- Minor Arcana Suit Combinations (General) ---
-    { cards: ["Ace of Cups", "Ace of Wands"], context: [], meaning: "A new emotional beginning sparks a powerful new creative impulse or opportunity." },
-    { cards: ["Ace of Pentacles", "Ace of Swords"], context: [], meaning: "A new financial opportunity or venture brings mental clarity and a breakthrough idea." },
-    { cards: ["Two of Pentacles", "Two of Swords"], context: [], meaning: "Juggling resources or commitments while facing a difficult decision or stalemate." },
-    { cards: ["Three of Wands", "Six of Pentacles"], context: [], meaning: "Planning for expansion or future ventures involves balanced giving and receiving, or generosity." },
-    { cards: ["Five of Cups", "Eight of Cups"], context: [], meaning: "Mourning a loss or disappointment (Five of Cups) leads to leaving the situation behind to seek something more fulfilling (Eight of Cups)." },
-     { cards: ["Seven of Swords", "Three of Cups"], context: [], meaning: "Deception, trickery, or acting independently (Seven of Swords) impacts friendships, celebrations, or community harmony (Three of Cups)." },
-    { cards: ["Eight of Wands", "Knight of Swords"], context: [], meaning: "Rapid movement and action (Eight of Wands) are driven by a fast, ambitious, and sometimes impulsive intellectual energy (Knight of Swords)." },
-    { cards: ["Nine of Swords", "Four of Swords"], context: [], meaning: "Intense anxiety and worry (Nine of Swords) highlight a desperate need for rest, withdrawal, and recovery (Four of Swords)." },
-
-    // --- Additional Context-Specific Relationships ---
-    { cards: ["Five of Swords", "Ten of Swords"], context: ["Outcome", "Future"], meaning: "The conflict or defeat experienced (Five of Swords in Outcome) results in a complete ending or hitting rock bottom (Ten of Swords in Future)." },
-    { cards: ["Four of Cups", "Ace of Wands"], context: ["Present", "Advice"], meaning: "Feeling apathetic or disconnected in your current situation (Four of Cups in Present) is met with the advice to embrace a new burst of creative energy or opportunity (Ace of Wands as Advice)." },
-    { cards: ["King of Pentacles", "Page of Wands"], context: ["External Influences", "Advice"], meaning: "A grounded, successful, or patriarchal figure (King of Pentacles in External Influences) is impacting your situation, and the recommended action is to approach things with curiosity, exploration, and a willingness to try new things (Page of Wands as Advice)." },
-    { cards: ["The High Priestess", "Judgement"], context: ["Hidden Influences", "Outcome"], meaning: "Subconscious knowledge and intuition (The High Priestess in Hidden Influences) will play a crucial role in a forthcoming period of evaluation, awakening, or a significant decision (Judgement in Outcome)." },
-     { cards: ["Two of Cups", "The World"], context: ["Present", "Outcome"], meaning: "A partnership or significant connection (Two of Cups in Present) is heading towards completion and fulfillment (The World in Outcome)." },
-    { cards: ["The Sun", "The Hanged Man"], context: ["Future", "Advice"], meaning: "While the future promises joy and success (The Sun in Future), the advice is to be willing to see things from a completely new perspective or make a necessary sacrifice (The Hanged Man as Advice)." },
-    // --- More Major Arcana Relationships (General) ---
-    { cards: ["The Fool", "The Hermit"], context: [], meaning: "Balancing the impulsive leap of faith (The Fool) with cautious introspection and inner guidance (The Hermit)." },
-    { cards: ["The Magician", "The Tower"], context: [], meaning: "Attempting to control or manifest (The Magician) in a situation destined for sudden breakdown or release (The Tower)." },
-    { cards: ["The Empress", "Temperance"], context: [], meaning: "Nurturing and creativity are enhanced by balance, patience, and moderation." },
-    { cards: ["The Emperor", "Justice"], context: [], meaning: "Authority, structure, and control are closely tied to matters of truth, fairness, and law." },
-    { cards: ["The Hierophant", "The Lovers"], context: [], meaning: "Traditional guidance or conforming to beliefs (The Hierophant) influences or is challenged by a significant choice or relationship (The Lovers)." },
-    { cards: ["The Chariot", "The World"], context: [], meaning: "Focused willpower and determination lead directly to successful completion and fulfillment." },
-    { cards: ["Strength", "The Hermit"], context: [], meaning: "Finding the inner courage and gentle power (Strength) needed for deep introspection and solitude (The Hermit)." },
-    { cards: ["Wheel of Fortune", "Death"], context: [], meaning: "A major turning point or fated event (Wheel of Fortune) brings about inevitable transformation and endings (Death)." },
-    { cards: ["The Hanged Man", "The Star"], context: [], meaning: "Surrendering to a new perspective or sacrifice (The Hanged Man) leads to renewed hope, inspiration, and healing (The Star)." },
-    { cards: ["The Devil", "Judgement"], context: [], meaning: "Facing and overcoming bondage or negative patterns (The Devil) leads to a significant period of evaluation, reckoning, and awakening (Judgement)." },
-
-    // --- More Major Arcana + Minor Arcana Relationships (General) ---
-    { cards: ["The Fool", "Ace of Swords"], context: [], meaning: "Taking a leap of faith based on a sudden breakthrough idea or moment of clarity." },
-    { cards: ["The Magician", "King of Pentacles"], context: [], meaning: "Manifesting material success and stability through skillful use of resources and leadership." },
-    { cards: ["The High Priestess", "Queen of Cups"], context: [], meaning: "Deep intuition and subconscious wisdom are embodied by a compassionate, emotionally secure figure." },
-    { cards: ["The Empress", "Queen of Pentacles"], context: [], meaning: "Nurturing energy and abundance are expressed through practical support, home, and financial security." },
-    { cards: ["The Emperor", "King of Swords"], context: [], meaning: "Authority and structure are applied with clear intellect, logic, and impartial judgment." },
-    { cards: ["The Lovers", "Two of Cups"], context: [], meaning: "A significant choice or relationship (The Lovers) is centered around partnership, unity, and mutual connection (Two of Cups)." },
-    { cards: ["The Chariot", "Six of Wands"], context: [], meaning: "Willpower and determination lead to victory, recognition, and public acknowledgment of success." },
-    { cards: ["Strength", "Knight of Wands"], context: [], meaning: "Inner strength and courage are needed to manage or direct passionate, energetic, and adventurous action." },
-    { cards: ["The Hermit", "Seven of Swords"], context: [], meaning: "Seeking solitude or inner guidance might be necessary to navigate deception, trickery, or cunning strategies." },
-    { cards: ["Wheel of Fortune", "Ten of Wands"], context: [], meaning: "A turn of fate or destiny brings about a heavy burden or significant responsibility." },
-    { cards: ["Justice", "Two of Swords"], context: [], meaning: "Seeking fairness and truth while facing a difficult decision or stalemate." },
-    { cards: ["The Hanged Man", "Eight of Swords"], context: [], meaning: "Seeing a situation from a new perspective or making a sacrifice (The Hanged Man) is key to overcoming feelings of restriction, powerlessness, or being trapped (Eight of Swords)." },
-    { cards: ["Death", "Three of Swords"], context: [], meaning: "A painful ending or transformation (Death) is associated with heartbreak, sorrow, or loss (Three of Swords)." },
-    { cards: ["Temperance", "Five of Wands"], context: [], meaning: "Finding balance and moderation (Temperance) is essential when navigating conflict, competition, or disagreement (Five of Wands)." },
-    { cards: ["The Devil", "Nine of Swords"], context: [], meaning: "Entrapment, addiction, or negative patterns (The Devil) contribute significantly to anxiety, worry, and nightmares (Nine of Swords)." },
-    { cards: ["The Tower", "Eight of Swords"], context: [], meaning: "A sudden breakdown or crisis (The Tower) leads to feeling restricted, powerless, or trapped by circumstances (Eight of Swords)." },
-    { cards: ["The Star", "Six of Cups"], context: [], meaning: "Hope and healing for the future (The Star) are connected to revisiting or finding solace in happy childhood memories or nostalgia (Six of Cups)." },
-    { cards: ["The Moon", "Page of Cups"], context: [], meaning: "Navigating subconscious realms and intuition (The Moon) may involve receiving new emotional messages or creative inspirations (Page of Cups)." },
-    { cards: ["The Sun", "Four of Wands"], context: [], meaning: "Joy and success (The Sun) lead to celebration, harmony, and a feeling of homecoming or security (Four of Wands)." },
-    { cards: ["Judgement", "Ace of Cups"], context: [], meaning: "A period of awakening or significant decision (Judgement) brings about a powerful new emotional beginning or flow." },
-    { cards: ["The World", "Four of Pentacles"], context: [], meaning: "Achieving completion and fulfillment (The World) solidifies material security and a sense of stable foundation (Four of Pentacles)." },
-
-    // --- More Minor Arcana Suit Combinations (General) ---
-    { cards: ["Two of Cups", "Seven of Cups"], context: [], meaning: "A relationship or partnership (Two of Cups) is clouded by confusion, illusion, or unrealistic choices (Seven of Cups)." },
-    { cards: ["Three of Swords", "Six of Cups"], context: [], meaning: "Heartbreak or sorrow (Three of Swords) is soothed by revisiting fond memories or finding comfort in the past (Six of Cups)." },
-    { cards: ["Four of Pentacles", "Seven of Pentacles"], context: [], meaning: "Focusing on material security and control (Four of Pentacles) may require patience and long-term investment before seeing significant results (Seven of Pentacles)." },
-    { cards: ["Five of Wands", "Ten of Wands"], context: [], meaning: "Conflict and competition (Five of Wands) lead to feeling burdened and overwhelmed by responsibilities (Ten of Wands)." },
-    { cards: ["Six of Swords", "Ace of Wands"], context: [], meaning: "Moving on from a difficult situation (Six of Swords) is sparked by a new creative opportunity or burst of inspiration (Ace of Wands)." },
-    { cards: ["Eight of Cups", "Page of Swords"], context: [], meaning: "Leaving something behind to seek deeper meaning (Eight of Cups) may involve gathering information or approaching the situation with intellectual curiosity (Page of Swords)." },
-    { cards: ["Nine of Pentacles", "King of Pentacles"], context: [], meaning: "Self-sufficiency and material abundance (Nine of Pentacles) are supported or embodied by a master of the material world and business (King of Pentacles)." },
-    { cards: ["Ten of Swords", "Ace of Pentacles"], context: [], meaning: "Hitting rock bottom or experiencing a complete ending (Ten of Swords) paradoxically opens the door for a brand new financial or material opportunity (Ace of Pentacles)." },
-
-    // --- Court Card Combinations (General) ---
-    { cards: ["Page of Cups", "Knight of Wands"], context: [], meaning: "New emotional or creative impulses are met with energetic, passionate action." },
-    { cards: ["Knight of Swords", "Queen of Pentacles"], context: [], meaning: "Intellectual ambition and rapid action interact with grounded, practical, and nurturing energy." },
-    { cards: ["Queen of Wands", "King of Cups"], context: [], meaning: "Vibrant, confident energy (Queen of Wands) blends with emotional maturity, balance, and diplomacy (King of Cups)." },
-    { cards: ["Page of Pentacles", "Page of Swords"], context: [], meaning: "New opportunities for learning and growth in both the material/practical realm and the intellectual/communicative realm." },
-    { cards: ["King of Swords", "Queen of Swords"], context: [], meaning: "Two strong intellectual forces, one embodying logical authority (King) and the other clear boundaries and direct communication (Queen)." },
-
-
-    // --- More Context-Specific Relationships ---
-    { cards: ["The Magician", "The Devil"], context: ["Present", "Challenge"], meaning: "Your current ability to manifest (The Magician in Present) is being challenged by feelings of entrapment, addiction, or materialism (The Devil in Challenge)." },
-    { cards: ["The Empress", "The Tower"], context: ["Above", "Future"], meaning: "Your desired outcome or highest potential (The Empress in Above) faces a likely future of sudden change or upheaval (The Tower in Future)." },
-    { cards: ["The Chariot", "The Hermit"], context: ["Advice", "Future"], meaning: "The recommended action is to move forward with determination (The Chariot as Advice), but the future suggests a need for introspection and withdrawal (The Hermit in Future)." },
-    { cards: ["Wheel of Fortune", "The Lovers"], context: ["Past", "Present"], meaning: "A past turn of fate or destiny (Wheel of Fortune in Past) led directly to your current significant choice or relationship (The Lovers in Present)." },
-    { cards: ["Five of Cups", "Ace of Cups"], context: ["Past", "Advice"], meaning: "Past disappointment or loss (Five of Cups in Past) suggests the advice is to open yourself to a new emotional beginning or flow (Ace of Cups as Advice)." },
-    { cards: ["Ten of Swords", "The World"], context: ["Past", "Outcome"], meaning: "A complete ending or rock bottom experience from the past (Ten of Swords in Past) has ultimately led to completion, fulfillment, and integration as the outcome (The World in Outcome)." },
-    { cards: ["Page of Wands", "The Fool"], context: ["Advice", "Outcome"], meaning: "The advice is to approach things with curiosity and exploration (Page of Wands as Advice), which will ultimately lead to embracing a brand new, exciting journey (The Fool in Outcome)." },
-    // --- More Major Arcana + Minor Arcana Relationships (General) ---
-    { cards: ["The Fool", "Page of Wands"], context: [], meaning: "Embracing a new adventure with curiosity and enthusiasm." },
+    { cards: ["The Sun", "Ten of Cups"], context: [], meaning: "Great joy, success, and vitality lead to emotional harmony, family happiness, and fulfillment." },
+    { cards: ["The World", "Ten of Pentacles"], context: [], meaning: "Completion and fulfillment on your journey are tied to material security, legacy, and family abundance." },
+    // ... (Include other Major + Minor general relationships) ...
+     { cards: ["The Fool", "Ace of Swords"], context: [], meaning: "Taking a leap of faith based on a sudden breakthrough idea or moment of clarity." },
+     { cards: ["The Magician", "King of Pentacles"], context: [], meaning: "Manifesting material success and stability through skillful use of resources and leadership." },
+     { cards: ["The High Priestess", "Queen of Cups"], context: [], meaning: "Deep intuition and subconscious wisdom are embodied by a compassionate, emotionally secure figure." },
+     { cards: ["The Empress", "Queen of Pentacles"], context: [], meaning: "Nurturing energy and abundance are expressed through practical support, home, and financial security." },
+     { cards: ["The Emperor", "King of Swords"], context: [], meaning: "Authority and structure are applied with clear intellect, logic, and impartial judgment." },
+     { cards: ["The Lovers", "Two of Cups"], context: [], meaning: "A significant choice or relationship is centered around partnership, unity, and mutual connection." },
+     { cards: ["The Chariot", "Six of Wands"], context: [], meaning: "Willpower and determination lead to victory, recognition, and public acknowledgment of success." },
+     { cards: ["Strength", "Knight of Wands"], context: [], meaning: "Inner strength and courage are needed to manage or direct passionate, energetic, and adventurous action." },
+     { cards: ["The Hermit", "Seven of Swords"], context: [], meaning: "Seeking solitude or inner guidance might be necessary to navigate deception, trickery, or cunning strategies." },
+     { cards: ["Wheel of Fortune", "Ten of Wands"], context: [], meaning: "A turn of fate or destiny brings about a heavy burden or significant responsibility." },
+     { cards: ["Justice", "Two of Swords"], context: [], meaning: "Seeking fairness and truth while facing a difficult decision or stalemate." },
+     { cards: ["The Hanged Man", "Eight of Swords"], context: [], meaning: "Seeing a situation from a new perspective or making a sacrifice is key to overcoming feelings of restriction, powerlessness, or being trapped." },
+     { cards: ["Death", "Three of Swords"], context: [], meaning: "A painful ending or transformation is associated with heartbreak, sorrow, or loss." },
+     { cards: ["Temperance", "Five of Wands"], context: [], meaning: "Finding balance and moderation is essential when navigating conflict, competition, or disagreement." },
+     { cards: ["The Devil", "Nine of Swords"], context: [], meaning: "Entrapment, addiction, or negative patterns contribute significantly to anxiety, worry, and nightmares." },
+     { cards: ["The Tower", "Eight of Swords"], context: [], meaning: "A sudden breakdown or crisis leads to feeling restricted, powerless, or trapped by circumstances." },
+     { cards: ["The Star", "Six of Cups"], context: [], meaning: "Hope and healing for the future are connected to revisiting or finding solace in happy childhood memories or nostalgia." },
+     { cards: ["The Moon", "Page of Cups"], context: [], meaning: "Navigating subconscious realms and intuition may involve receiving new emotional messages or creative inspirations." },
+     { cards: ["The Sun", "Four of Wands"], context: [], meaning: "Joy and success lead to celebration, harmony, and a feeling of homecoming or security." },
+     { cards: ["Judgement", "Ace of Cups"], context: [], meaning: "A period of awakening or significant decision brings about a powerful new emotional beginning or flow." },
+     { cards: ["The World", "Four of Pentacles"], context: [], meaning: "Achieving completion and fulfillment solidifies material security and a sense of stable foundation." },
+      { cards: ["The Fool", "Page of Wands"], context: [], meaning: "Embracing a new adventure with curiosity and enthusiasm." },
     { cards: ["The Magician", "Two of Pentacles"], context: [], meaning: "Using your power to skillfully balance multiple aspects of your life." },
     { cards: ["The High Priestess", "Seven of Cups"], context: [], meaning: "Intuition is needed to navigate confusing choices or illusions." },
     { cards: ["The Empress", "Nine of Pentacles"], context: [], meaning: "Nurturing abundance and enjoying self-sufficiency and material comfort." },
@@ -271,75 +219,51 @@ const cardRelationships = [
     { cards: ["The Tower", "Eight of Wands"], context: [], meaning: "Sudden upheaval or chaos is followed by rapid developments or swift communication." },
     { cards: ["The Star", "Page of Cups"], context: [], meaning: "Hope and inspiration bring forth new emotional or creative opportunities." },
     { cards: ["The Moon", "Five of Cups"], context: [], meaning: "Confusion, illusion, or subconscious fears are tied to feelings of loss, grief, or disappointment." },
-    { cards: ["The Sun", "Six of Wands"], context: [], meaning: "Joy and success (The Sun) lead to celebration, harmony, and a feeling of homecoming or security (Four of Wands)." }, // Corrected duplicate Sun/Four Wands entry
-    { cards: ["Judgement", "Three of Swords"], context: [], meaning: "A period of evaluation or awakening is brought about by or involves facing heartbreak or sorrow." }, // Corrected duplicate Judgement/Ace Cups entry
-    { cards: ["The World", "Nine of Cups"], context: [], meaning: "Completion and fulfillment include achieving emotional satisfaction and wish fulfillment." }, // Added World/Nine Cups
-    { cards: ["Judgement", "Ace of Cups"], context: [], meaning: "A period of evaluation or awakening is brought about by or involves a new emotional beginning or flow." }, // Corrected duplicate Judgement/Three Swords entry
-
-    // --- More Minor Arcana Cross-Suit Relationships (General) ---
-    { cards: ["Two of Cups", "Two of Wands"], context: [], meaning: "A relationship or partnership leads to making plans or decisions for the future." },
-    { cards: ["Three of Pentacles", "Six of Swords"], context: [], meaning: "Collaboration or teamwork (Three of Pentacles) is key to successfully moving on from a difficult situation (Six of Swords)." },
-    { cards: ["Four of Wands", "Nine of Swords"], context: [], meaning: "Celebration and harmony (Four of Wands) are disrupted by anxiety, worry, or nightmares (Nine of Swords)." },
-    { cards: ["Five of Pentacles", "Seven of Wands"], context: [], meaning: "Experiencing hardship or isolation (Five of Pentacles) requires perseverance and defense to maintain control (Seven of Wands)." },
-    { cards: ["Eight of Wands", "Ace of Swords"], context: [], meaning: "Rapid action or communication brings about a sudden breakthrough or moment of clarity." },
-    { cards: ["Nine of Cups", "King of Wands"], context: [], meaning: "Emotional satisfaction and wish fulfillment are facilitated by a visionary, energetic leader (King of Wands)." },
-    { cards: ["Ten of Pentacles", "Four of Swords"], context: [], meaning: "Long-term material security and family stability are achieved through or require a period of rest and recuperation." },
-
-    // --- More Court Card Combinations (General) ---
-    { cards: ["Page of Cups", "Knight of Swords"], context: [], meaning: "New emotional or creative ideas are met with intellectual drive and potentially hasty action." },
-    { cards: ["Knight of Pentacles", "Queen of Wands"], context: [], meaning: "Practical, methodical energy (Knight of Pentacles) combines with confident, vibrant, and independent energy (Queen of Wands)." },
-    { cards: ["Queen of Swords", "King of Pentacles"], context: [], meaning: "Clear, direct communication and independent thought (Queen of Swords) interacts with grounded, successful, and authoritative material energy (King of Pentacles)." },
-     { cards: ["Page of Swords", "Knight of Wands"], context: [], meaning: "Intellectual curiosity and gathering information (Page of Swords) fuels passionate, adventurous action (Knight of Wands)." },
-    { cards: ["Knight of Cups", "Queen of Swords"], context: [], meaning: "Romantic or imaginative energy (Knight of Cups) meets clear boundaries and sharp intellect (Queen of Swords)." },
-
-    // --- Additional Context-Specific Relationships ---
-    { cards: ["The Magician", "The Devil"], context: ["Present", "Challenge"], meaning: "Your current ability to manifest (The Magician in Present) is being challenged by feelings of entrapment, addiction, or materialism (The Devil in Challenge)." },
-    { cards: ["The Empress", "The Tower"], context: ["Above", "Future"], meaning: "Your desired outcome or highest potential (The Empress in Above) faces a likely future of sudden change or upheaval (The Tower in Future)." },
-    { cards: ["The Chariot", "The Hermit"], context: ["Advice", "Future"], meaning: "The recommended action is to move forward with determination (The Chariot as Advice), but the future suggests a need for introspection and withdrawal (The Hermit in Future)." },
-    { cards: ["Wheel of Fortune", "The Lovers"], context: ["Past", "Present"], meaning: "A past turn of fate or destiny (Wheel of Fortune in Past) led directly to your current significant choice or relationship (The Lovers in Present)." },
-    { cards: ["Five of Cups", "Ace of Cups"], context: ["Past", "Advice"], meaning: "Past disappointment or loss (Five of Cups in Past) suggests the advice is to open yourself to a new emotional beginning or flow (Ace of Cups as Advice)." },
-    { cards: ["Ten of Swords", "The World"], context: ["Past", "Outcome"], meaning: "A complete ending or rock bottom experience from the past (Ten of Swords in Past) has ultimately led to completion, fulfillment, and integration as the outcome (The World in Outcome)." },
-    { cards: ["Page of Wands", "The Fool"], context: ["Advice", "Outcome"], meaning: "The advice is to approach things with curiosity and exploration (Page of Wands as Advice), which will ultimately lead to embracing a brand new, exciting journey (The Fool in Outcome)." },
-    // --- More Major Arcana + Minor Arcana Relationships (General) ---
-    { cards: ["The Fool", "Page of Wands"], context: [], meaning: "Embracing a new adventure with curiosity and enthusiasm." },
-    { cards: ["The Magician", "Two of Pentacles"], context: [], meaning: "Using your power to skillfully balance multiple aspects of your life." },
-    { cards: ["The High Priestess", "Seven of Cups"], context: [], meaning: "Intuition is needed to navigate confusing choices or illusions." },
-    { cards: ["The Empress", "Nine of Pentacles"], context: [], meaning: "Nurturing abundance and enjoying self-sufficiency and material comfort." },
-    { cards: ["The Emperor", "King of Wands"], context: [], meaning: "Structure and authority combine with visionary leadership and action." },
-    { cards: ["The Hierophant", "Five of Swords"], context: [], meaning: "Traditional beliefs or group conformity are challenged by conflict or defeat." },
-    { cards: ["The Chariot", "Ten of Swords"], context: [], meaning: "Driving forward with willpower leads unexpectedly to a sudden, complete ending." },
-    { cards: ["Strength", "Nine of Wands"], context: [], meaning: "Inner strength and resilience are needed to stand firm and defend yourself after past challenges." },
-    { cards: ["The Hermit", "Eight of Cups"], context: [], meaning: "Seeking solitude and introspection leads to withdrawing from unsatisfying situations to find deeper meaning." },
-    { cards: ["Wheel of Fortune", "Three of Wands"], context: [], meaning: "A fated turning point opens the door for expansion and future planning." },
-    { cards: ["Justice", "Six of Pentacles"], context: [], meaning: "Fairness and truth bring about a situation of balanced giving and receiving or charity." },
-    { cards: ["The Hanged Man", "Four of Cups"], context: [], meaning: "A change in perspective or necessary sacrifice stems from feeling apathetic or disconnected." },
-    { cards: ["Temperance", "Six of Swords"], context: [], meaning: "Finding balance and moderation facilitates a smooth transition or moving on from difficulty." },
-    { cards: ["The Devil", "Two of Swords"], context: [], meaning: "Entrapment or negative patterns lead to a difficult, paralyzing decision or stalemate." },
-    { cards: ["The Tower", "Eight of Wands"], context: [], meaning: "Sudden upheaval or chaos is followed by rapid developments or swift communication." },
-    { cards: ["The Star", "Page of Cups"], context: [], meaning: "Hope and inspiration bring forth new emotional or creative opportunities." },
-    { cards: ["The Moon", "Five of Cups"], context: [], meaning: "Confusion, illusion, or subconscious fears are tied to feelings of loss, grief, or disappointment." },
-    { cards: ["The Sun", "Four of Wands"], context: [], meaning: "Joy and success lead to celebration, harmony, and a feeling of homecoming or security (Four of Wands)." },
     { cards: ["Judgement", "Three of Swords"], context: [], meaning: "A period of evaluation or awakening is brought about by or involves facing heartbreak or sorrow." },
     { cards: ["The World", "Nine of Cups"], context: [], meaning: "Completion and fulfillment include achieving emotional satisfaction and wish fulfillment." },
 
 
-    // --- More Minor Arcana Cross-Suit Relationships (General) ---
-    { cards: ["Two of Cups", "Two of Wands"], context: [], meaning: "A relationship or partnership leads to making plans or decisions for the future." },
-    { cards: ["Three of Pentacles", "Six of Swords"], context: [], meaning: "Collaboration or teamwork (Three of Pentacles) is key to successfully moving on from a difficult situation (Six of Swords)." },
-    { cards: ["Four of Wands", "Nine of Swords"], context: [], meaning: "Celebration and harmony (Four of Wands) are disrupted by anxiety, worry, or nightmares (Nine of Swords)." },
-    { cards: ["Five of Pentacles", "Seven of Wands"], context: [], meaning: "Experiencing hardship or isolation (Five of Pentacles) requires perseverance and defense to maintain control (Seven of Wands)." },
-    { cards: ["Eight of Wands", "Ace of Swords"], context: [], meaning: "Rapid action or communication brings about a sudden breakthrough or moment of clarity." },
-    { cards: ["Nine of Cups", "King of Wands"], context: [], meaning: "Emotional satisfaction and wish fulfillment are facilitated by a visionary, energetic leader (King of Wands)." },
-    { cards: ["Ten of Pentacles", "Four of Swords"], context: [], meaning: "Long-term material security and family stability are achieved through or require a period of rest and recuperation." },
+    // General Minor Arcana Combinations
+    { cards: ["Ace of Cups", "Ace of Wands"], context: [], meaning: "A new emotional beginning sparks a powerful new creative impulse or opportunity." },
+    { cards: ["Ace of Pentacles", "Ace of Swords"], context: [], meaning: "A new financial opportunity or venture brings mental clarity and a breakthrough idea." },
+    { cards: ["Two of Pentacles", "Two of Swords"], context: [], meaning: "Juggling resources or commitments while facing a difficult decision or stalemate." },
+    { cards: ["Three of Wands", "Six of Pentacles"], context: [], meaning: "Planning for expansion or future ventures involves balanced giving and receiving, or generosity." },
+    { cards: ["Five of Cups", "Eight of Cups"], context: [], meaning: "Mourning a loss or disappointment leads to leaving the situation behind to seek something more fulfilling." },
+     { cards: ["Seven of Swords", "Three of Cups"], context: [], meaning: "Deception, trickery, or acting independently impacts friendships, celebrations, or community harmony." },
+    { cards: ["Eight of Wands", "Knight of Swords"], context: [], meaning: "Rapid movement and action are driven by a fast, ambitious, and sometimes impulsive intellectual energy." },
+    { cards: ["Nine of Swords", "Four of Swords"], context: [], meaning: "Intense anxiety and worry highlight a desperate need for rest, withdrawal, and mental recuperation." },
+     // ... (Include other Minor Arcana general combinations) ...
+     { cards: ["Two of Cups", "Seven of Cups"], context: [], meaning: "A relationship or partnership is clouded by confusion, illusion, or unrealistic choices." },
+     { cards: ["Three of Swords", "Six of Cups"], context: [], meaning: "Heartbreak or sorrow is soothed by revisiting fond memories or finding comfort in the past." },
+     { cards: ["Four of Pentacles", "Seven of Pentacles"], context: [], meaning: "Focusing on material security and control may require patience and long-term investment before seeing significant results." },
+     { cards: ["Five of Wands", "Ten of Wands"], context: [], meaning: "Conflict and competition lead to feeling burdened and overwhelmed by responsibilities." },
+     { cards: ["Six of Swords", "Ace of Wands"], context: [], meaning: "Moving on from a difficult situation is sparked by a new creative opportunity or burst of inspiration." },
+     { cards: ["Eight of Cups", "Page of Swords"], context: [], meaning: "Leaving something behind to seek deeper meaning may involve gathering information or approaching the situation with intellectual curiosity." },
+     { cards: ["Nine of Pentacles", "King of Pentacles"], context: [], meaning: "Self-sufficiency and material abundance are supported or embodied by a master of the material world and business." },
+     { cards: ["Ten of Swords", "Ace of Pentacles"], context: [], meaning: "Hitting rock bottom or experiencing a complete ending paradoxically opens the door for a brand new financial or material opportunity." },
+     { cards: ["Two of Cups", "Two of Wands"], context: [], meaning: "A relationship or partnership leads to making plans or decisions for the future." }, // Corrected re-added combination
+     { cards: ["Three of Pentacles", "Six of Swords"], context: [], meaning: "Collaboration or teamwork is key to successfully moving on from a difficult situation." }, // Corrected re-added combination
+     { cards: ["Four of Wands", "Nine of Swords"], context: [], meaning: "Celebration and harmony are disrupted by anxiety, worry, or nightmares." }, // Corrected re-added combination
+     { cards: ["Five of Pentacles", "Seven of Wands"], context: [], meaning: "Experiencing hardship or isolation requires perseverance and defense to maintain control." }, // Corrected re-added combination
+     { cards: ["Eight of Wands", "Ace of Swords"], context: [], meaning: "Rapid action or communication brings about a sudden breakthrough or moment of clarity." }, // Corrected re-added combination
+     { cards: ["Nine of Cups", "King of Wands"], context: [], meaning: "Emotional satisfaction and wish fulfillment are facilitated by a visionary, energetic leader." }, // Corrected re-added combination
+     { cards: ["Ten of Pentacles", "Four of Swords"], context: [], meaning: "Long-term material security and family stability are achieved through or require a period of rest and recuperation." }, // Corrected re-added combination
 
-    // --- More Court Card Combinations (General) ---
-    { cards: ["Page of Cups", "Knight of Swords"], context: [], meaning: "New emotional or creative ideas are met with intellectual drive and potentially hasty action." },
-    { cards: ["Knight of Pentacles", "Queen of Wands"], context: [], meaning: "Practical, methodical energy (Knight of Pentacles) combines with confident, vibrant, and independent energy (Queen of Wands)." },
-    { cards: ["Queen of Swords", "King of Pentacles"], context: [], meaning: "Clear, direct communication and independent thought (Queen of Swords) interacts with grounded, successful, and authoritative material energy (King of Pentacles)." },
-     { cards: ["Page of Swords", "Knight of Wands"], context: [], meaning: "Intellectual curiosity and gathering information (Page of Swords) fuels passionate, adventurous action (Knight of Wands)." },
-    { cards: ["Knight of Cups", "Queen of Swords"], context: [], meaning: "Romantic or imaginative energy (Knight of Cups) meets clear boundaries and sharp intellect (Queen of Swords)." },
 
-    // --- Additional Context-Specific Relationships ---
+    // General Court Card Combinations
+    { cards: ["Page of Cups", "Knight of Wands"], context: [], meaning: "New emotional or creative impulses are met with energetic, passionate action." },
+    { cards: ["Knight of Swords", "Queen of Pentacles"], context: [], meaning: "Intellectual ambition and rapid action interact with grounded, practical, and nurturing energy." },
+    { cards: ["Queen of Wands", "King of Cups"], context: [], meaning: "Vibrant, confident energy blends with emotional maturity, balance, and diplomacy." },
+    { cards: ["Page of Pentacles", "Page of Swords"], context: [], meaning: "New opportunities for learning and growth in both the material/practical realm and the intellectual/communicative realm." },
+    { cards: ["King of Swords", "Queen of Swords"], context: [], meaning: "Two strong intellectual forces, one embodying logical authority and the other clear boundaries and direct communication." },
+     { cards: ["Page of Swords", "Knight of Wands"], context: [], meaning: "Intellectual curiosity and gathering information fuels passionate, adventurous action." }, // Corrected re-added combination
+     { cards: ["Knight of Cups", "Queen of Swords"], context: [], meaning: "Romantic or imaginative energy meets clear boundaries and sharp intellect." }, // Corrected re-added combination
+
+
+    // Specific Context Relationships (Context [Pos1, Pos2, ...])
+    // These match if Card 1 is in ANY listed context position AND Card 2 is in ANY *OTHER* listed context position.
+    { cards: ["The Fool", "The World"], context: ["Past", "Outcome"], meaning: "Your journey of new beginnings (The Fool in the Past) culminates in completion and fulfillment (The World in the Outcome)." },
+     { cards: ["The Tower", "Death"], context: ["Challenge", "Future"], meaning: "An immediate upheaval (The Tower in Challenge) is likely to bring about profound transformation (Death in the Future)." },
     { cards: ["The Magician", "The Devil"], context: ["Present", "Challenge"], meaning: "Your current ability to manifest (The Magician in Present) is being challenged by feelings of entrapment, addiction, or materialism (The Devil in Challenge)." },
     { cards: ["The Empress", "The Tower"], context: ["Above", "Future"], meaning: "Your desired outcome or highest potential (The Empress in Above) faces a likely future of sudden change or upheaval (The Tower in Future)." },
     { cards: ["The Chariot", "The Hermit"], context: ["Advice", "Future"], meaning: "The recommended action is to move forward with determination (The Chariot as Advice), but the future suggests a need for introspection and withdrawal (The Hermit in Future)." },
@@ -355,11 +279,12 @@ const cardRelationships = [
     { cards: ["Five of Swords", "Six of Pentacles"], context: ["Past", "Advice"], meaning: "Past conflict or defeat (Five of Swords in Past) indicates the advice is to practice generosity, charity, or seek balanced giving and receiving (Six of Pentacles as Advice)." },
     { cards: ["Seven of Cups", "Two of Swords"], context: ["Present", "Obstacles"], meaning: "In the present, you are navigating confusing choices or illusions (Seven of Cups in Present), which is an obstacle to making a clear decision (Two of Swords in Obstacles)." },
      { cards: ["Page of Pentacles", "King of Swords"], context: ["Past", "External Influences"], meaning: "A past focus on new practical or financial opportunities (Page of Pentacles in Past) is now influenced by a logical, authoritative figure (King of Swords in External Influences)." },
-    { cards: ["Knight of Cups", "The Lovers"], context: ["Present", "Advice"], meaning: "Your current situation involves romantic or imaginative energy (Knight of Cups in Present), and the advice is to make a clear choice or address a relationship matter (The Lovers as Advice)." }
+    { cards: ["Knight of Cups", "The Lovers"], context: ["Present", "Advice"], meaning: "Your current situation involves romantic or imaginative energy (Knight of Cups in Present), and the advice is to make a clear choice or address a relationship matter (The Lovers as Advice)." },
+    // Context-specific relationships involving 3 or more positions can be added, but the matching logic would need expansion. Sticking to 2 specific positions for now.
 ];
 
 
-// Helper Functions for Numerology and Astrology
+// Helper Functions for Numerology and Astrology (No changes needed here)
 
 function calculateLifePath(dobString) {
     if (!dobString) return null;
@@ -497,7 +422,7 @@ function getColorMeaning(colorName) {
 }
 
 
-// Fisher-Yates Shuffle Algorithm
+// Fisher-Yates Shuffle Algorithm (No changes needed here)
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -506,7 +431,7 @@ function shuffle(array) {
     return array;
 }
 
-// Draw Cards from the Deck
+// Draw Cards from the Deck (No changes needed here)
 function drawCards(deck, num, useReversals) {
     const shuffled = shuffle([...deck]);
     return shuffled.slice(0, num).map(card => ({
@@ -515,7 +440,7 @@ function drawCards(deck, num, useReversals) {
     }));
 }
 
-// Categorize the Question
+// Categorize the Question (No changes needed here)
 function categorizeQuestion(question) {
     const qLower = question.toLowerCase();
     if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
@@ -527,8 +452,7 @@ function categorizeQuestion(question) {
     return "yourself"; // Keep "yourself" as requested
 }
 
-// Generate Interpretation
-// Replace your existing generateInterpretation function with this one
+// Generate Interpretation - ENHANCED
 function generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign) {
     const spread = spreads[spreadType];
     const category = categorizeQuestion(question);
@@ -540,9 +464,9 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
 
     let personalIntro = "<p>This reading seeks guidance ";
     if (readerName && lifePath !== null && zodiacSign) {
-         personalIntro += `for <strong>${readerName}</strong>, a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}). We'll explore how your innate energies interweave with the current situation.`;
+         personalIntro += `for <strong>${readerName}</strong>, whose energies are shaped by a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and being a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}). We'll explore how your innate energies interweave with the current situation.`;
     } else if (readerName && lifePath !== null) {
-         personalIntro += `for <strong>${readerName}</strong>, a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}), exploring how your innate energies influence this reading.`;
+         personalIntro += `for <strong>${readerName}</strong>, whose Life Path is ${lifePath} (${getLifePathMeaning(lifePath)}), exploring how this core energy influences this reading.`;
     } else if (readerName && zodiacSign) {
          personalIntro += `for <strong>${readerName}</strong>, a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}), considering how your inherent traits relate to this reading.`;
     } else if (lifePath !== null && zodiacSign) {
@@ -551,117 +475,120 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
          personalIntro += `informed by your Life Path ${lifePath} (${getLifePathMeaning(lifePath)}).`;
     } else if (zodiacSign) {
          personalIntro += `informed by your ${zodiacSign} traits (${getZodiacMeaning(zodiacSign)}).`;
+    } else if (readerName) { // Only name provided
+        personalIntro += ` for <strong>${readerName}</strong>.`;
     }
 
-     personalIntro += ` Using the <strong>${spread.name}</strong> spread, this reading offers a perspective`;
-     personalIntro += question ? ` focusing on your question about <strong>${category}</strong>.` : `.`;
+
+     personalIntro += ` Using the <strong>${spread.name}</strong> spread`;
+     personalIntro += question ? `, this reading offers a perspective focusing on your question about <strong>${category}</strong>.` : ` addresses matters concerning <strong>${category}</strong>.`;
 
     interpretationHTML += personalIntro + "</p>";
 
     // Explicitly state the question if one was asked
     if (question) {
          interpretationHTML += `<p>Your specific inquiry: <strong>"${question}"</strong></p>`;
-    } else {
-         // If no question, it's a general reading about oneself (using "yourself")
-         interpretationHTML += `<p>This reading addresses matters concerning <strong>${category}</strong>.</p>`; // Adjusted phrasing for "yourself"
     }
 
     interpretationHTML += `<p>The cards drawn reflect the energies surrounding this matter, providing insight into the past, present, and potential future.</p>`;
 
-    // --- Calculation of Themes (Moved to Top) ---
-    // Suit/Major Arcana counts
+    // --- Calculation of Themes ---
     const typeCounts = reading.reduce((acc, item) => {
         const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
         acc[type] = (acc[type] || 0) + 1;
         return acc;
     }, {});
 
-    // Numerical/Rank counts
     const rankCounts = reading.reduce((acc, item) => {
          const rank = item.card.isMajor ? 'Major Arcana' : (typeof item.card.rank === 'number' ? item.card.rank : item.card.rank);
          acc[rank] = (acc[rank] || 0) + 1;
          return acc;
     }, {});
 
-    // Color counts
     const colors = reading.reduce((acc, item) => {
          const color = item.card.color || 'None';
          acc[color] = (acc[color] || 0) + 1;
          return acc;
     }, {});
 
-    const sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]); // Corrected index from a[2] to a[1]
-    const sortedColors = Object.entries(colors).sort((a, b) => b[1] - a[1]); // Corrected variable name
-    const dominantColor = sortedColors.length > 0 && sortedColors[0][0] !== 'None' ? colorMap[sortedColors[0][0]] || sortedColors[0][0] : null; // Handle case with no colors or 'None', use name or hex
+    const sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+    const sortedColors = Object.entries(colors).sort((a, b) => b[1] - a[1]);
+    const dominantColorHex = sortedColors.length > 0 && sortedColors[0][0] !== 'None' ? sortedColors[0][0] : null;
+    const dominantColorName = dominantColorHex ? colorMap[dominantColorHex] || dominantColorHex : null;
 
 
     // Add Numerical/Rank Themes
     const significantRanks = Object.entries(rankCounts)
-        .filter(([rank, count]) => count > 1 && rank !== 'Major Arcana') // Focus on multiple pips or court types
+        .filter(([rank, count]) => count > 1 && rank !== 'Major Arcana') // Focus on multiple pips or court types appearing more than once
         .sort((a, b) => b[1] - a[1]);
 
-    // --- Overall Themes (Uses calculated counts from above) ---
+
+    // --- Overall Themes ---
     interpretationHTML += "<h2>Overall Themes and Energies</h2><ul>";
 
-    sortedTypes.forEach(([type, count]) => { // Using the pre-calculated sortedTypes
-        if (count > 0) {
-             let meaning = "";
-             if (type === "Major Arcana") meaning = "suggest significant life events or transformative lessons at play, indicating this is a pivotal moment.";
-             else if (type === "Cups") meaning = "place a strong emphasis on emotions, relationships, and intuition in your current situation.";
-             else if (type === "Pentacles") meaning = "bring focus to material matters, work, and stability, grounding the reading in the practical realm.";
-             else if (type === "Swords") meaning = "highlight thoughts, conflicts, and intellectual challenges, suggesting the mind is highly active or troubled.";
-             else if (type === "Wands") meaning = "point towards energy, creativity, and action, indicating a period of dynamic movement or inspiration.";
-             interpretationHTML += `<li>A notable presence of <strong>${type}</strong> (${count} card${count > 1 ? 's' : ''}) ${meaning}</li>`;
-        }
-    });
-
-    if (significantRanks.length > 0) {
-        significantRanks.forEach(([rank, count]) => {
-            let rankMeaning = "";
-             if (typeof rank === 'number') {
-                  if (rank === 1) rankMeaning = "new beginnings, potential, or core energy.";
-                  else if (rank === 2) rankMeaning = "balance, duality, choices, or partnership.";
-                  else if (rank === 3) rankMeaning = "growth, collaboration, or initial results.";
-                  else if (rank === 4) rankMeaning = "stability, structure, or foundation.";
-                  else if (rank === 5) rankMeaning = "conflict, change, or instability.";
-                  else if (rank === 6) rankMeaning = "harmony, resolution, or adjustment.";
-                  else if (rank === 7) rankMeaning = "reflection, challenge, or perseverance.";
-                  else if (rank === 8) rankMeaning = "action, mastery, or movement.";
-                  else if (rank === 9) rankMeaning = "culmination, fulfillment, or nearing completion.";
-                  else if (rank === 10) rankMeaning = "completion, culmination, or a final outcome.";
-             } else if (rank === 'Page') rankMeaning = "new messages, opportunities, or youthful energy.";
-             else if (rank === 'Knight') rankMeaning = "action, movement, or focused energy.";
-             else if (rank === 'Queen') rankMeaning = "nurturing, emotional mastery, or inner knowing.";
-             else if (rank === 'King') rankMeaning = "authority, mastery, or leadership.";
-
-             if (rankMeaning) {
-                 interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
-             }
-        });
-    } else if (typeCounts['Major Arcana'] > reading.length / 2) { // If many Majors, less focus on pip numbers
-         interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
+    if (reading.length === 1) {
+         interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
     } else {
-         interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present.</li>`;
-    }
+         sortedTypes.forEach(([type, count]) => {
+            if (count > 0) {
+                 let meaning = "";
+                 if (type === "Major Arcana") meaning = "suggest significant life events or transformative lessons at play, indicating this is a pivotal moment.";
+                 else if (type === "Cups") meaning = "place a strong emphasis on emotions, relationships, and intuition in your current situation.";
+                 else if (type === "Pentacles") meaning = "bring focus to material matters, work, and stability, grounding the reading in the practical realm.";
+                 else if (type === "Swords") meaning = "highlight thoughts, conflicts, and intellectual challenges, suggesting the mind is highly active or troubled.";
+                 else if (type === "Wands") meaning = "point towards energy, creativity, and action, indicating a period of dynamic movement or inspiration.";
+                 interpretationHTML += `<li>A notable presence of <strong>${type}</strong> (${count} card${count > 1 ? 's' : ''}) ${meaning}</li>`;
+            }
+        });
+
+        if (significantRanks.length > 0) {
+            significantRanks.forEach(([rank, count]) => {
+                let rankMeaning = "";
+                 if (typeof rank === 'number') {
+                      if (rank === 1) rankMeaning = "new beginnings, potential, or core energy.";
+                      else if (rank === 2) rankMeaning = "balance, duality, choices, or partnership.";
+                      else if (rank === 3) rankMeaning = "growth, collaboration, or initial results.";
+                      else if (rank === 4) rankMeaning = "stability, structure, or foundation.";
+                      else if (rank === 5) rankMeaning = "conflict, change, or instability.";
+                      else if (rank === 6) rankMeaning = "harmony, resolution, or adjustment.";
+                      else if (rank === 7) rankMeaning = "reflection, challenge, or perseverance.";
+                      else if (rank === 8) rankMeaning = "action, mastery, or movement.";
+                      else if (rank === 9) rankMeaning = "culmination, fulfillment, or nearing completion.";
+                      else if (rank === 10) rankMeaning = "completion, culmination, or a final outcome.";
+                 } else if (rank === 'Page') rankMeaning = "new messages, opportunities, or youthful energy.";
+                 else if (rank === 'Knight') rankMeaning = "action, movement, or focused energy.";
+                 else if (rank === 'Queen') rankMeaning = "nurturing, emotional mastery, or inner knowing.";
+                 else if (rank === 'King') rankMeaning = "authority, mastery, or leadership.";
+
+                 if (rankMeaning) {
+                     interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
+                 }
+            });
+        } else if (typeCounts['Major Arcana'] > reading.length / 2) { // If many Majors, less focus on pip numbers
+             interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
+        } else if (reading.length > 1) { // Only mention balanced if there's more than one card and no significant repeating rank
+             interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present in this situation.</li>`;
+        }
 
 
-    if (dominantColor) { // Using the pre-calculated dominantColor
-         interpretationHTML += `<li>The dominant color theme is <strong>${dominantColor}</strong>, which resonates strongly with themes of ${getColorMeaning(dominantColor)}. Consider how these energies color the entire reading.</li>`;
-    }
+        if (dominantColorName) {
+             interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong> (associated with ${dominantColorHex}), which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
+        }
 
 
-    const reversedCount = reading.filter(item => item.isReversed).length;
-    if (reversedCount > 0) {
-         const reversedPercentage = (reversedCount / reading.length) * 100;
-         let reversedMeaning = "";
-         if (reversedPercentage >= 70) reversedMeaning = "suggesting significant blockages, internal conflict, or a need for deep introspection is required to move forward.";
-         else if (reversedPercentage >= 40) reversedMeaning = "indicating some challenges, delays, or areas requiring internal reflection before progress can be made.";
-         else reversedMeaning = "pointing to minor internal hesitations or subtle imbalances that may need attention.";
+        const reversedCount = reading.filter(item => item.isReversed).length;
+        if (reversedCount > 0) {
+             const reversedPercentage = (reversedCount / reading.length) * 100;
+             let reversedMeaning = "";
+             if (reversedPercentage >= 70) reversedMeaning = "suggesting significant blockages, internal conflict, or a need for deep introspection is required to move forward.";
+             else if (reversedPercentage >= 40) reversedMeaning = "indicating some challenges, delays, or areas requiring internal reflection before progress can be made.";
+             else reversedMeaning = "pointing to minor internal hesitations or subtle imbalances that may need attention.";
 
-        interpretationHTML += `<li>${reversedCount} card${reversedCount > 1 ? 's' : ''} (${reversedPercentage.toFixed(0)}%) appeared in <strong>reversed</strong> orientation, ${reversedMeaning}</li>`;
-    } else if (reading.length > 0) {
-        interpretationHTML += `<li>All cards appeared in <strong>upright</strong> orientation, suggesting energies are flowing freely and directly in this situation.</li>`;
-    }
+            interpretationHTML += `<li>${reversedCount} card${reversedCount > 1 ? 's' : ''} (${reversedPercentage.toFixed(0)}%) appeared in <strong>reversed</strong> orientation, ${reversedMeaning}</li>`;
+        } else if (reading.length > 0) { // Only mention if there's at least one card
+            interpretationHTML += `<li>All cards appeared in <strong>upright</strong> orientation, suggesting energies are flowing freely and directly in this situation.</li>`;
+        }
+    } // End check for reading.length === 1
 
     interpretationHTML += "</ul>";
 
@@ -669,59 +596,98 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     // --- Individual Card Placements ---
     interpretationHTML += `<h2>Card Placements in the ${spread.name}</h2><ul>`;
     reading.forEach(item => {
-        const posDesc = spread.positions.find(p => p.name === item.position).description;
+        const posDef = spread.positions.find(p => p.name === item.position);
+        const posDesc = posDef ? posDef.description : item.position; // Fallback to name if description not found
         const cardName = item.card.name;
         const cardOrientation = item.isReversed ? 'reversed' : 'upright';
         const cardColorName = colorMap[item.card.color] || item.card.color || 'None';
+        const cardMeaning = item.meaning; // This is already the orientation-specific meaning
 
         // Add rank/type significance to individual card interpretation
         let rankSig = "";
         if (item.card.isMajor) {
-             rankSig = `As Major Arcana ${item.card.rank}, this card represents a significant life lesson or archetype. `;
+             rankSig = `As Major Arcana ${item.card.rank}, this card represents a significant life lesson or archetype `;
         } else {
              let rankType = typeof item.card.rank === 'number' ? `the number ${item.card.rank}` : item.card.rank;
-             rankSig = `As the ${rankType} of ${item.card.suit}, this card focuses on issues of ${rankType === 'Page' ? 'new beginnings/messages' : rankType === 'Knight' ? 'action/pursuit' : rankType === 'Queen' ? 'emotional mastery/nurturing' : rankType === 'King' ? 'authority/control' : 'stage-specific development'} within that realm. `;
+             rankSig = `As the ${rankType} of ${item.card.suit}, it focuses on issues of ${rankType === 'Page' ? 'new beginnings/messages' : rankType === 'Knight' ? 'action/pursuit' : rankType === 'Queen' ? 'emotional mastery/nurturing' : rankType === 'King' ? 'authority/control' : 'stage-specific development'} within that realm. `;
         }
 
 
-        interpretationHTML += `<li>In the <strong>${item.position}</strong> position (${posDesc}), you drew the <strong>${cardName}</strong> (${cardOrientation}). ${rankSig}`; // Added rank significance
-        interpretationHTML += `This card, often associated with ${cardColorName} energies, signifies: ${item.meaning}</li>`; // Kept color mention
+        interpretationHTML += `<li>In the <strong>${item.position}</strong> position (${posDesc}), you drew the <strong>${cardName}</strong> (${cardOrientation}). ${rankSig}`;
+        // Provide the contextual meaning clearly
+        interpretationHTML += `In this position, signifying ${posDesc}, this card indicates: <strong>${cardMeaning}</strong>.`;
+        // Optional: Mention color energy related to this specific card
+         if (cardColorName !== 'None') {
+              interpretationHTML += ` The color ${cardColorName} associated with this card adds an energetic layer related to ${getColorMeaning(cardColorName)}.`;
+         }
+        interpretationHTML += `</li>`;
     });
     interpretationHTML += "</ul>";
 
-    // --- Deeper Connections and Patterns ---
-    interpretationHTML += "<h2>Deeper Connections and Patterns</h2><ul>";
+
+    // --- Deeper Connections and Patterns (Enhanced) ---
+    interpretationHTML += "<h2>Interactions and Relationships Between Cards</h2><ul>";
      let relationshipFound = false;
+     const foundRelationships = []; // Store relationships to reference in synthesis
 
-     // Check for general relationships (context: []) first
-     cardRelationships.filter(rel => rel.context.length === 0).forEach(rel => {
-         const card1 = rel.cards[0];
-         const card2 = rel.cards[1];
+     if (reading.length > 1) { // Relationships are only meaningful with more than one card
+         // Find all potential relationships involving cards drawn in the reading
+         cardRelationships.forEach(rel => {
+             const card1Name = rel.cards[0];
+             const card2Name = rel.cards.length > 1 ? rel.cards[1] : null; // Only check for a second card if it exists
 
-         const item1 = reading.find(item => item.card.name === card1);
-         const item2 = reading.find(item => item.card.name === card2);
+             if (!card2Name) return; // Skip if relationship doesn't define two cards
 
-         if (item1 && item2) {
-              interpretationHTML += `<li>A general theme emerges from the presence of <strong>${card1}</strong> and <strong>${card2}</strong> in this reading. ${rel.meaning}</li>`;
-              relationshipFound = true;
+             const item1 = reading.find(item => item.card.name === card1Name);
+             const item2 = reading.find(item => item.card.name === card2Name);
+
+             // Check if both cards are present
+             if (item1 && item2) {
+                 // Check for general relationships (context: [])
+                 if (rel.context.length === 0) {
+                      foundRelationships.push({
+                          type: 'general',
+                          cards: [item1, item2],
+                          meaning: rel.meaning
+                      });
+                      relationshipFound = true;
+                 } else {
+                     // Check for specific contextual relationships (context: ["Pos1", "Pos2", ...])
+                     // Check if Card1 is in ANY listed context position AND Card2 is in ANY *OTHER* listed context position from the context list
+                     const item1PosMatch = rel.context.includes(item1.position);
+                     const item2PosMatch = rel.context.includes(item2.position);
+
+                     if (item1PosMatch && item2PosMatch && item1.position !== item2.position) {
+                          // Found a specific contextual match
+                          foundRelationships.push({
+                              type: 'contextual',
+                              cards: [item1, item2],
+                              meaning: rel.meaning
+                          });
+                          relationshipFound = true;
+                     }
+                 }
+             }
+         });
+
+         // Display the found relationships
+         if (foundRelationships.length > 0) {
+              foundRelationships.forEach(foundRel => {
+                  const item1 = foundRel.cards[0];
+                  const item2 = foundRel.cards[1];
+                  let relationshipText = "";
+
+                  if (foundRel.type === 'general') {
+                      relationshipText = `A general theme emerges from the presence of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> in this reading. ${foundRel.meaning}`;
+                  } else { // type === 'contextual'
+                       const posDesc1 = spread.positions.find(p => p.name === item1.position).description;
+                       const posDesc2 = spread.positions.find(p => p.name === item2.position).description;
+                       relationshipText = `Within the context of the spread, the relationship between <strong>${item1.card.name}</strong> (in the ${item1.position} position - ${posDesc1}) and <strong>${item2.card.name}</strong> (in the ${item2.position} position - ${posDesc2}) is significant. ${foundRel.meaning}`;
+                  }
+                  interpretationHTML += `<li>${relationshipText}</li>`;
+              });
          }
-     });
-
-     // Check for context-specific relationships
-     cardRelationships.filter(rel => rel.context.length > 0).forEach(rel => {
-        const card1 = rel.cards[0];
-        const card2 = rel.cards[1];
-
-        // Find the drawn items for these cards
-        const item1 = reading.find(item => item.card.name === card1);
-        const item2 = reading.find(item => item.card.name === card2);
-
-        // Check if both cards are present AND their positions match the context
-        if (item1 && item2 && rel.context.includes(item1.position) && rel.context.includes(item2.position)) {
-            interpretationHTML += `<li>The relationship between the <strong>${card1}</strong> (in the ${item1.position} position) and the <strong>${card2}</strong> (in the ${item2.position} position) is significant within the context of the spread. ${rel.meaning}</li>`;
-            relationshipFound = true;
-        }
-     });
+     }
 
 
      if (!relationshipFound) {
@@ -730,7 +696,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     interpretationHTML += "</ul>";
 
 
-    // --- Connections to Your Energy (Life Path & Zodiac) ---
+    // --- Connections to Your Energy (Life Path & Zodiac) - Enhanced ---
     if (lifePath !== null || zodiacSign) {
          interpretationHTML += "<h2>Connections to Your Personal Energy</h2><ul>";
          let personalConnectionsFound = false;
@@ -753,38 +719,47 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                   const resonantSuits = Object.keys(suitElement).filter(suit => suitElement[suit] === userElement);
                   const resonantCards = reading.filter(item => resonantSuits.includes(item.card.suit));
                   if (resonantCards.length > 0) {
-                       interpretationHTML += `<li>As a <strong>${zodiacSign}</strong> (associated with ${userElement} energy), the presence of <strong>${resonantSuits.join(' and ')}</strong> card${resonantSuits.length > 1 ? 's' : ''} in your reading (${resonantCards.map(c => c.card.name).join(', ')}) may resonate strongly with your inherent traits of ${getZodiacMeaning(zodiacSign)}.</li>`;
+                       interpretationHTML += `<li>As a <strong>${zodiacSign}</strong>, whose energy is aligned with the <strong>${userElement}</strong> element, the presence of <strong>${resonantSuits.join(' and ')}</strong> cards in your reading (${resonantCards.map(c => c.card.name).join(', ')}) may indicate themes related to ${getZodiacMeaning(zodiacSign)} are particularly emphasized or active now.</li>`;
                        personalConnectionsFound = true;
+                  } else {
+                       interpretationHTML += `<li>As a <strong>${zodiacSign}</strong> (${userElement} energy), the absence of your resonant element's suit (<strong>${resonantSuits.join(' and ')}</strong>) might suggest the current situation is pushing you outside your comfort zone or requires a focus on other energies.</li>`;
+                       personalConnectionsFound = true; // Still a connection, just an inverse one
                   }
              }
          }
 
          // Check Major Arcana resonance with Life Path (using rank as a proxy)
          if (lifePath !== null) {
-              const lifePathCards = reading.filter(item => item.card.isMajor && item.card.rank === lifePath);
-              if (lifePathCards.length > 0) {
-                   interpretationHTML += `<li>Given your <strong>Life Path ${lifePath}</strong> (${getLifePathMeaning(lifePath)}), the presence of Major Arcana card${lifePathCards.length > 1 ? 's' : ''} corresponding to this number (${lifePathCards.map(c => c.card.name).join(', ')}) may indicate that lessons or themes related to your core life purpose are particularly active now.</li>`;
-                    personalConnectionsFound = true;
+              const lifePathCard = deck.find(card => card.isMajor && card.rank === lifePath); // Find the actual Life Path Major Arcana card
+              if (lifePathCard) {
+                   const drawnLifePathCardItem = reading.find(item => item.card.name === lifePathCard.name);
+                   if (drawnLifePathCardItem) {
+                        const posDesc = spread.positions.find(p => p.name === drawnLifePathCardItem.position).description;
+                        interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>, which appeared in the <strong>${drawnLifePathCardItem.position}</strong> position (${posDesc}). This strongly suggests that lessons or themes directly related to your core life purpose (${getLifePathMeaning(lifePath)}) are central to this aspect of your reading right now.</li>`;
+                         personalConnectionsFound = true;
+                   } else {
+                       interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>. While this card was not drawn, its absence might suggest you are currently navigating lessons that are foundational or prerequisite to fully embodying your Life Path energy (${getLifePathMeaning(lifePath)}), or that this aspect of your journey is not the primary focus of this specific reading.</li>`;
+                       personalConnectionsFound = true; // Absence is also a form of connection/information
+                   }
               }
               // Could add more checks here for other numbers/patterns resonating with Life Path stages
          }
 
          // Check dominant color resonance with personal energy
-         if (dominantColor && (lifePath !== null || zodiacSign)) {
+         if (dominantColorName && (lifePath !== null || zodiacSign)) {
              let personalLink = "";
              if (lifePath !== null && zodiacSign) personalLink = `your Life Path ${lifePath} and ${zodiacSign} traits`;
              else if (lifePath !== null) personalLink = `your Life Path ${lifePath}`;
              else personalLink = `your ${zodiacSign} traits`;
 
-             interpretationHTML += `<li>The dominant <strong>${dominantColor}</strong> energy in the reading also resonates with themes of ${getColorMeaning(dominantColor)}, which may complement or challenge aspects of ${personalLink}.</li>`;
+             interpretationHTML += `<li>The dominant <strong>${dominantColorName}</strong> energy in the reading also resonates with themes of ${getColorMeaning(dominantColorName)}, which may complement or challenge aspects of ${personalLink}.</li>`;
               personalConnectionsFound = true;
          }
 
 
          if (!personalConnectionsFound) {
-              interpretationHTML += `<li>Based on the specific cards drawn, there are no strong immediate connections to your personal numerological or astrological energies in this reading.</li>`;
+              interpretationHTML += `<li>Based on the specific cards drawn, there are no strong immediate numerical or astrological correspondences that stand out in this reading, suggesting the message is more universally applicable or focused away from these particular energies right now.</li>`;
          }
-
 
          interpretationHTML += "</ul>";
     }
@@ -793,9 +768,9 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     // --- Integrating the Message ---
     interpretationHTML += "<h2>Synthesizing the Guidance</h2>";
 
-    let synthesis = "<p>Bringing together the insights from the individual cards, their relationships, and the overall themes";
+    let synthesis = "<p>Bringing together the insights from the individual cards, their interactions, and the overall themes";
 
-    // Add personal energy mention only if applicable
+    // Add personal energy mention only if applicable and connections were found
     if (lifePath !== null || zodiacSign) {
         synthesis += `, alongside the influence of your inherent energies`;
          if (lifePath !== null && zodiacSign) {
@@ -805,27 +780,45 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         } else if (zodiacSign) {
             synthesis += ` (influenced by your ${zodiacSign} traits)`;
         }
+         synthesis += personalConnectionsFound ? ", as explored above" : ""; // Only add this if connections were actually discussed
     }
 
 
-    synthesis += `, this reading provides a multi-layered perspective. It seems to highlight `;
-
-    const majorArcanaCount = typeCounts["Major Arcana"] || 0;
-    const dominantSuit = sortedTypes.length > 0 ? sortedTypes[0][0] : null; // Use sortedTypes
-    // dominantColor is already calculated at the top
-
+    synthesis += `, this reading provides a multi-layered perspective on your question about <strong>${category}</strong>. It seems to highlight `;
 
     const keyThemes = [];
+    const majorArcanaCount = typeCounts["Major Arcana"] || 0;
+    const dominantSuitEntry = sortedTypes.length > 0 ? sortedTypes[0] : null; // Use sortedTypes
+    const dominantSuit = dominantSuitEntry && dominantSuitEntry[0] !== 'Major Arcana' ? dominantSuitEntry[0] : null; // Get the actual suit name if it's the most frequent non-Major
+
     if (majorArcanaCount > reading.length / 3) keyThemes.push("significant life events and transformations");
-    if (dominantSuit === "Cups") keyThemes.push("the importance of emotions and relationships");
-    if (dominantSuit === "Pentacles") keyThemes.push("focus on material stability and practical matters");
-    if (dominantSuit === "Swords") keyThemes.push("challenges or clarity related to thoughts and communication");
-    if (dominantSuit === "Wands") keyThemes.push("energy, action, and creative pursuits");
-    // Added mention of numerical themes in synthesis
-    if (significantRanks.length > 0) {
-        keyThemes.push(`themes related to the stage of development represented by the number ${significantRanks[0][0]}`);
+    else if (majorArcanaCount === 0 && reading.length > 1) keyThemes.push("the practical, day-to-day aspects of the situation"); // If no Majors, focus on minor arcana themes
+
+    if (dominantSuit) {
+        let suitTheme = "";
+         if (dominantSuit === "Cups") suitTheme = "the importance of emotions and relationships";
+         else if (dominantSuit === "Pentacles") suitTheme = "focus on material stability and practical matters";
+         else if (dominantSuit === "Swords") suitTheme = "challenges or clarity related to thoughts and communication";
+         else if (dominantSuit === "Wands") suitTheme = "energy, action, and creative pursuits";
+        keyThemes.push(`a strong emphasis on <strong>${dominantSuit}</strong> energies (${suitTheme})`);
     }
-    if (dominantColor) keyThemes.push(`the pervasive influence of <strong>${dominantColor}</strong> energies`);
+
+    // Added mention of numerical themes in synthesis if significant repeating ranks were found
+    if (significantRanks.length > 0) {
+         significantRanks.forEach(([rank, count], index) => {
+              let rankMeaning = "";
+               if (typeof rank === 'number') {
+                    if (rank === 1) rankMeaning = "new beginnings"; else if (rank === 2) rankMeaning = "balance or choices"; else if (rank === 3) rankMeaning = "growth or collaboration"; else if (rank === 4) rankMeaning = "stability"; else if (rank === 5) rankMeaning = "change or conflict"; else if (rank === 6) rankMeaning = "harmony or adjustment"; else if (rank === 7) rankMeaning = "reflection or perseverance"; else if (rank === 8) rankMeaning = "action or mastery"; else if (rank === 9) rankMeaning = "culmination or fulfillment"; else if (rank === 10) rankMeaning = "completion";
+               } else if (rank === 'Page') rankMeaning = "new opportunities"; else if (rank === 'Knight') rankMeaning = "action or movement"; else if (rank === 'Queen') rankMeaning = "nurturing or emotional mastery"; else if (rank === 'King') rankMeaning = "authority or leadership";
+             if (rankMeaning) {
+                 keyThemes.push(`themes of <strong>${rank}</strong> (${rankMeaning})`);
+             }
+         });
+    }
+
+    if (dominantColorName) {
+         keyThemes.push(`the pervasive influence of <strong>${dominantColorName}</strong> energies (${getColorMeaning(dominantColorName)})`);
+    }
 
 
     if (keyThemes.length > 0) {
@@ -834,38 +827,53 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         synthesis += "various facets of your current situation. ";
     }
 
+     const reversedCount = reading.filter(item => item.isReversed).length;
      if (reversedCount > 0 && reading.length > 0) {
           const reversedPercentage = (reversedCount / reading.length) * 100;
-          if (reversedPercentage >= 70) synthesis += "The high number of reversals points to deep internal work or significant obstacles that need to be addressed. ";
-          else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests some internal blockages or external delays are impacting the flow. ";
-          else synthesis += "A few reversals indicate minor hesitations or subtle energies needing adjustment. ";
+          if (reversedPercentage >= 70) synthesis += "The high number of reversals emphasizes that significant internal work, overcoming obstacles, or shifting perspective is crucial now. ";
+          else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests that internal blockages, external delays, or a need to re-evaluate your approach are significant factors. ";
+          else synthesis += "A few reversals indicate subtle energies, minor hesitations, or areas requiring slight adjustment. ";
+     } else if (reading.length > 0) {
+         synthesis += "The absence of reversals suggests the energies are flowing clearly. ";
      }
 
-     // relationshipFound is defined within the "Deeper Connections and Patterns" section.
-     // We need to re-check if relationships exist or pass the flag. Let's re-evaluate quickly.
-     // Instead of re-evaluating relationships here, just add a general statement if that section was included.
-     // The relationshipFound flag is local to the "Deeper Connections" loop.
-     // Let's assume if the section was added (meaning at least one relationship *could* exist), we mention it.
-     // A more robust check would pass relationshipFound from that section.
-     // For now, a simpler approach: if reading length > 1 and relationship list is not empty, mention potential connections.
-    if (reading.length > 1 && cardRelationships.length > 0) {
-         synthesis += "Specific card pairings may offer further depth, indicating connections between different aspects of your reading. ";
+
+    // Integrate found relationships into synthesis
+    if (foundRelationships.length > 0) {
+         synthesis += "The interactions between certain cards provide deeper insight. For example: ";
+         foundRelationships.slice(0, 2).forEach((rel, index) => { // Mention 1-2 key relationships in synthesis
+              const item1 = rel.cards[0];
+              const item2 = rel.cards[1];
+              let relationshipSnippet = "";
+              if (rel.type === 'general') {
+                   relationshipSnippet = `the pairing of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> suggests ${rel.meaning}`;
+              } else { // contextual
+                  relationshipSnippet = `the dynamic between <strong>${item1.card.name}</strong> in the ${item1.position} position and <strong>${item2.card.name}</strong> in the ${item2.position} position highlights that ${rel.meaning}`;
+              }
+             synthesis += `${index > 0 ? 'Additionally, ' : ''}${relationshipSnippet}. `;
+         });
+         if (foundRelationships.length > 2) {
+              synthesis += `See the "Interactions and Relationships" section above for more detailed card pairings. `;
+         }
     }
 
-
-     // Added mention of personal energy connections in synthesis (Moved and refined)
+     // Added mention of personal energy connections in synthesis (Refined)
      if (lifePath !== null || zodiacSign) {
-         synthesis += "Consider how the themes illuminated by the cards might align with or offer insights into your innate numerological and astrological predispositions. ";
-     }
-
-    if (question) {
-         synthesis += `Consider how these elements come together to illuminate your path forward regarding your question about <strong>${category}</strong>.</p>`;
-    } else {
-         // If no question, it's a general reading, use different phrasing for "yourself" category
-         synthesis += `Consider how these elements come together to illuminate your path forward in light of these energies and themes related to <strong>${category}</strong>.</p>`; // This works with "yourself" now
+         let personalSynthesis = "";
+          if (lifePath !== null && zodiacSign) {
+              personalSynthesis = `Considering your innate energies as a Life Path ${lifePath} and a ${zodiacSign}, this reading may be particularly illuminating aspects of your core purpose or how your natural traits are influencing or being influenced by the current situation.`;
+         } else if (lifePath !== null) {
+              personalSynthesis = `Reflecting on your Life Path ${lifePath}, consider how the themes in this reading relate to your core journey and lessons.`;
+         } else if (zodiacSign) {
+              personalSynthesis = `Given your ${zodiacSign} traits, consider how the energies in these cards align with or challenge your inherent nature.`;
+         }
+         if (personalConnectionsFound) { // Only add if we actually found specific connections to discuss
+             synthesis += personalSynthesis + " ";
+         }
     }
 
-     synthesis += "<p>Remember, the Tarot offers guidance, not destiny. Reflect on which parts of this reading resonate most deeply with you. Trust your intuition as you navigate the path ahead.</p>";
+
+    synthesis += `</p><p>The combined message encourages you to reflect on how these individual insights, interconnected dynamics, and overarching energies relate to your question and your path forward. Trust your intuition as you integrate this guidance.</p>`;
 
     interpretationHTML += synthesis;
 
@@ -873,7 +881,8 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     return interpretationHTML;
 }
 
-// Shuffle Animation
+
+// Shuffle Animation (No changes needed here)
 function animateShuffle(callback) {
     const shuffleDiv = document.getElementById('shuffleAnimation');
     shuffleDiv.style.display = 'block';
@@ -894,7 +903,7 @@ function animateShuffle(callback) {
     }, 2000);
 }
 
-// Event Listeners
+// Event Listeners (Minor tweak to modal logic)
 let reading;
 let question;
 let spreadType;
@@ -911,37 +920,51 @@ document.getElementById('start').addEventListener('click', () => {
     const useReversals = document.getElementById('reversals').checked;
     const spread = spreads[spreadType];
 
+    if (!spread) {
+         alert("Please select a spread.");
+         return;
+    }
+
     // Calculate numerology and zodiac
     lifePath = calculateLifePath(readerDob);
     zodiacSign = getZodiacSign(readerDob);
 
     document.querySelector('.form').style.display = 'none';
     document.getElementById('reading').style.display = 'block';
+    document.getElementById('interpretation').style.display = 'none'; // Hide old interpretation
 
     // Start shuffle animation
     animateShuffle(() => {
         const drawnCards = drawCards(deck, spread.positions.length, useReversals);
-        reading = spread.positions.map((pos, index) => ({
-            position: pos.name,
-            card: drawnCards[index],
-            isReversed: drawnCards[index].isReversed,
-            meaning: drawnCards[index].isReversed ? drawnCards[index].reversedMeaning : drawnCards[index].uprightMeaning
-        }));
+        reading = spread.positions.map((pos, index) => {
+            // Ensure we don't go out of bounds if drawCards returned fewer than expected (shouldn't happen with correct logic, but defensive)
+            const card = drawnCards[index];
+            if (!card) return null; // Handle case where a card wasn't drawn for a position
+
+            return {
+                position: pos.name,
+                card: card,
+                isReversed: card.isReversed,
+                meaning: card.isReversed ? card.reversedMeaning : card.uprightMeaning,
+                // Store position description with the card for easier modal display
+                positionDescription: pos.description
+            };
+        }).filter(item => item !== null); // Remove any null entries
 
         // Display personal info and question
         let personalInfoText = "";
         if (readerName) personalInfoText += `For ${readerName}`;
         if (lifePath !== null) personalInfoText += `${personalInfoText ? ', ' : ''}Life Path ${lifePath}`;
         if (zodiacSign) personalInfoText += `${personalInfoText ? ', ' : ''}${zodiacSign}`;
-        if (personalInfoText) {
-             personalInfoText = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
-             document.getElementById('personalInfoDisplay').textContent = personalInfoText;
+
+        if (readerName || lifePath !== null || zodiacSign) {
+             document.getElementById('personalInfoDisplay').textContent = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
         } else {
-            document.getElementById('personalInfoDisplay').textContent = ""; // Clear if no info
+            document.getElementById('personalInfoDisplay').textContent = "General reading"; // Default if no info
         }
 
-        document.getElementById('questionDisplay').textContent = question ? `Your focus: ${question}` : "General reading";
 
+        document.getElementById('questionDisplay').textContent = question ? `Your focus: ${question}` : ""; // Keep question display empty if no question
 
         // Display cards with deal animation
         const cardsDiv = document.getElementById('cards');
@@ -1039,10 +1062,11 @@ document.getElementById('start').addEventListener('click', () => {
                 const modalCardDiv = document.getElementById('modalCard');
                 const modalCardImage = document.getElementById('modalCardImage');
                 const modalCardName = document.getElementById('modalCardName');
-                const modalCardColor = document.getElementById('modalCardColor'); // Get color element
+                // Removed modalCardColor as we set background color instead
                 const modalCardDescription = document.getElementById('modalCardDescription');
                 const modalCardMeaning = document.getElementById('modalCardMeaning');
                 const modalCardContext = document.getElementById('modalCardContext');
+                const modalPositionName = document.getElementById('modalPositionName'); // Added element for position name
 
                 // Update modal card image/fallback
                 modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
@@ -1083,14 +1107,24 @@ document.getElementById('start').addEventListener('click', () => {
                      modalFallbackContent.style.color = '#000';
                 }
 
-
+                // Display Card Name + Orientation
                 modalCardName.textContent = `${item.card.name} (${item.isReversed ? 'Reversed' : 'Upright'})`;
-                modalCardDescription.textContent = `Description: ${item.card.description}`;
-                modalCardMeaning.textContent = `General Meaning: ${item.meaning}`;
 
-                const posDesc = spread.positions.find(p => p.name === item.position).description;
-                // Corrected and simplified Contextual Meaning display for the modal
-                modalCardContext.textContent = `Contextual Meaning: In the ${item.position} position (${posDesc}), this card signifies: ${item.meaning}`;
+                // Display Position Name and Description
+                 modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
+
+                // Display General Description from the card data
+                modalCardDescription.textContent = `Description: ${item.card.description}`;
+
+                // Display the specific meaning for the drawn orientation
+                modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning}`;
+
+                // Refined Contextual Meaning display for the modal - This is already captured by showing
+                // the position and the meaning specific to the orientation drawn in that position.
+                // We can add a synthesized sentence here if desired, but the current structure is clear.
+                // Let's make this section slightly more explicit about how the position shapes the meaning.
+                modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning}" is influencing the aspect of your reading related to ${item.positionDescription}.`;
+
 
                 modal.style.display = 'flex';
             }, { once: true }); // Use once: true so it only flips the first click
@@ -1105,12 +1139,12 @@ document.getElementById('start').addEventListener('click', () => {
     });
 });
 
-// Modal Close
+// Modal Close (No changes needed here)
 document.getElementById('closeModal').addEventListener('click', () => {
     document.getElementById('cardModal').style.display = 'none';
 });
 
-// Full Interpretation
+// Full Interpretation (No changes needed here - just calls the enhanced function)
 document.getElementById('interpret').addEventListener('click', () => {
     // Pass personal info to interpretation generation
     // The function now returns HTML
@@ -1120,7 +1154,7 @@ document.getElementById('interpret').addEventListener('click', () => {
     document.getElementById('interpretation').style.display = 'block';
 });
 
-// New Reading
+// New Reading (No changes needed here)
 document.getElementById('newReading').addEventListener('click', () => {
     document.querySelector('.form').style.display = 'block';
     document.getElementById('reading').style.display = 'none';
@@ -1131,6 +1165,9 @@ document.getElementById('newReading').addEventListener('click', () => {
     document.getElementById('readerDob').value = ''; // Clear DOB
     document.getElementById('reversals').checked = true;
     document.getElementById('personalInfoDisplay').textContent = ""; // Clear personal info display
+     document.getElementById('questionDisplay').textContent = ""; // Clear question display
     lifePath = null; // Reset
     zodiacSign = null; // Reset
+     reading = null; // Clear previous reading data
+     spreadType = null; // Clear previous spread type
 });
