@@ -457,15 +457,14 @@ function drawCards(deck, num, useReversals) {
 function categorizeQuestion(question) {
     const qLower = question.toLowerCase();
     if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
-    if (/career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
-    if (/health|body|energy|wellness/i.test(qLower)) return "health and well-being";
-    if (/spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
-    if (/family|home|move|living/i.test(qLower)) return "home and family";
-    if (/decision|choice|direction/i.test(qLower)) return "a decision or path forward";
+    if /career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
+    if /health|body|energy|wellness/i.test(qLower)) return "health and well-being";
+    if /spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
+    if /family|home|move|living/i.test(qLower)) return "home and family";
+    if /decision|choice|direction/i.test(qLower)) return "a decision or path forward";
     return "yourself"; // Keep "yourself" as requested
 }
 
-// Generate Interpretation - FIXED ReferenceError and added Modal Element Checks
 // Generate Interpretation - FIXED ReferenceError and added Modal Element Checks
 function generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign) {
     console.log("Starting generateInterpretation...");
@@ -476,7 +475,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     const category = categorizeQuestion(question);
 
     let interpretationHTML = "";
-    // --- FIX: Declare variables that are calculated in specific sections but needed later ---
+    // --- Declare variables that are calculated in specific sections but needed later ---
     let personalConnectionsFound = false;
     let typeCounts = {}; // Declare with default empty object
     let sortedTypes = []; // Declare with default empty array
@@ -527,18 +526,21 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         try {
             // Assign to the variables declared at the top
             typeCounts = reading.reduce((acc, item) => {
+                 if (!item || !item.card) return acc; // Add safety check
                 const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
                 acc[type] = (acc[type] || 0) + 1;
                 return acc;
             }, {});
 
             rankCounts = reading.reduce((acc, item) => {
+                 if (!item || !item.card) return acc; // Add safety check
                  const rank = item.card.isMajor ? 'Major Arcana' : (typeof item.card.rank === 'number' ? item.card.rank : item.card.rank);
                  acc[rank] = (acc[rank] || 0) + 1;
                  return acc;
             }, {});
 
             colors = reading.reduce((acc, item) => {
+                 if (!item || !item.card) return acc; // Add safety check
                  const color = item.card.color || 'None';
                  acc[color] = (acc[color] || 0) + 1;
                  return acc;
@@ -558,13 +560,13 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                 .sort((a, b) => b[1] - a[1]);
 
              // Assign to the variable declared at the top
-            reversedCount = reading.filter(item => item.isReversed).length;
+            reversedCount = reading.filter(item => item && item.isReversed).length; // Add safety check
 
 
             // --- Overall Themes ---
             interpretationHTML += "<h2>Overall Themes and Energies</h2><ul>";
 
-            if (reading.length === 1) {
+            if (reading.length === 1 && reading[0]) { // Check if reading has one item and it's not null
                  interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
             } else {
                  sortedTypes.forEach(([type, count]) => {
@@ -602,7 +604,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                              interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
                          }
                     });
-                } else if (typeCounts['Major Arcana'] > reading.length / 2) {
+                } else if (typeCounts['Major Arcana'] && reading.length > 0 && typeCounts['Major Arcana'] > reading.length / 2) { // Added safety check
                      interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
                 } else if (reading.length > 1) {
                      interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present in this situation.</li>`;
@@ -639,7 +641,8 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         try {
             interpretationHTML += `<h2>Card Placements in the ${spread.name}</h2><ul>`;
             reading.forEach(item => {
-                const posDef = spread.positions.find(p => p && p.name === item.position); // Added null/undefined check
+                 if (!item || !item.card) return; // Add safety check
+                const posDef = spread.positions.find(p => p && p.name === item.position);
                 const posDesc = posDef ? posDef.description : item.position;
                 const cardName = item.card.name;
                 const cardOrientation = item.isReversed ? 'reversed' : 'upright';
@@ -651,7 +654,6 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                      rankSig = `As Major Arcana ${item.card.rank}, this card represents a significant life lesson or archetype. `;
                 } else {
                      let rankType = typeof item.card.rank === 'number' ? `the number ${item.card.rank}` : item.card.rank;
-                     // Added a check for rankType not being empty/null before using it
                      rankSig = `As the ${rankType ? rankType + ' of' : ''} ${item.card.suit}, it focuses on issues of ${rankType === 'Page' ? 'new beginnings/messages' : rankType === 'Knight' ? 'action/pursuit' : rankType === 'Queen' ? 'emotional mastery/nurturing' : rankType === 'King' ? 'authority/control' : 'stage-specific development'} within that realm. `;
                 }
 
@@ -673,8 +675,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         try {
             interpretationHTML += "<h2>Interactions and Relationships Between Cards</h2><ul>";
              let relationshipPatternFound = false;
-             // Assign to the variable declared at the top
-             foundRelationships = [];
+             foundRelationships = []; // Assign to variable declared at top
 
              if (reading.length > 1) {
                  cardRelationships.forEach(rel => {
@@ -781,9 +782,9 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                       if (lifePath >= 1 && lifePath <= 21 && lifePath !== 10) {
                           mappedLifePathRank = lifePath;
                       } else if (lifePath === 0) {
-                          mappedLifePathRank = 0;
+                          mappedLifePathRank = 0; // The Fool
                       } else if (lifePath === 22) {
-                           mappedLifePathRank = 21; // The World
+                           mappedLifePathRank = 21; // The World (common association)
                       } else if (lifePath === 11) { // Handle Master Number 11 explicitly if not already covered by 1-21
                           mappedLifePathRank = 11; // Justice
                       }
@@ -971,9 +972,6 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     }
 }
 
-// ... (rest of the script: shuffle, drawCards, categorizeQuestion, animateShuffle, event listeners for start, closeModal, interpret, newReading) ...
-
-// Keep the rest of your script.js as is. The fix was isolated to the generateInterpretation function.
 
 // Fisher-Yates Shuffle Algorithm
 function shuffle(array) {
@@ -1027,7 +1025,7 @@ function animateShuffle(callback) {
     }, 2000);
 }
 
-// Event Listeners - FIXED Modal Element Checks
+// Event Listeners
 let reading;
 let question;
 let spreadType;
@@ -1088,7 +1086,7 @@ document.getElementById('start').addEventListener('click', () => {
         const drawnCards = drawCards(deck, spread.positions.length, useReversals);
         reading = spread.positions.map((pos, index) => {
             const card = drawnCards[index];
-            if (!card) return null;
+            if (!card) return null; // Ensure a card was actually drawn for this position
 
             return {
                 position: pos.name,
@@ -1097,12 +1095,15 @@ document.getElementById('start').addEventListener('click', () => {
                 meaning: card.isReversed ? card.reversedMeaning : card.uprightMeaning,
                 positionDescription: pos.description // Store description
             };
-        }).filter(item => item !== null); // Remove any null entries
+        }).filter(item => item !== null); // Remove any null entries if drawCards returned fewer than expected (unlikely with slice, but safe)
+
 
         // Display cards with deal animation
         const cardsDiv = document.getElementById('cards');
         cardsDiv.innerHTML = ''; // Clear previous cards
         reading.forEach((item, index) => {
+             if (!item || !item.card) return; // Add safety check in loop
+
             const flipContainer = document.createElement('div');
             flipContainer.className = 'flip-container';
             flipContainer.style.animationDelay = `${index * 0.2}s`;
@@ -1137,8 +1138,10 @@ document.getElementById('start').addEventListener('click', () => {
              // Add image element
              const cardImage = document.createElement('img');
              cardImage.className = 'card-face-img';
-             cardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
-             cardImage.alt = item.card.name;
+             // Ensure card.name exists before replacing/lowercasing
+             const imageName = item.card.name ? item.card.name.replace(/\s+/g, '_').toLowerCase() : '';
+             cardImage.src = `images/${imageName}.jpg`;
+             cardImage.alt = item.card.name || 'Tarot Card'; // Add default alt text
              // If image fails, add 'show-fallback' class to the 'back' div to trigger fallback text display
              cardImage.onerror = function() {
                  this.style.display = 'none'; // Hide broken image icon/image
@@ -1155,15 +1158,18 @@ document.getElementById('start').addEventListener('click', () => {
 
               const cardRank = document.createElement('div');
               cardRank.className = 'card-rank';
-              if (item.card.isMajor) {
-                   cardRank.textContent = item.card.rank;
-              } else {
-                  cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : '');
-              }
+               // Ensure item.card.rank exists before accessing
+               if (item.card.isMajor) {
+                    cardRank.textContent = item.card.rank !== undefined && item.card.rank !== null ? item.card.rank : '';
+               } else {
+                   cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? String(item.card.rank).substring(0,1) : ''); // Handle non-number ranks
+               }
+
 
               const cardNameElem = document.createElement('div');
               cardNameElem.className = 'card-name';
-              cardNameElem.textContent = item.card.name;
+              cardNameElem.textContent = item.card.name || 'Unknown Card'; // Add default text
+
 
               const suitSymbolBottom = document.createElement('div');
               suitSymbolBottom.className = 'suit-symbol suit-symbol-bottom';
@@ -1183,30 +1189,30 @@ document.getElementById('start').addEventListener('click', () => {
             flipper.appendChild(back);
             flipContainer.appendChild(flipper);
 
-            // Flip and modal trigger - FIXED Modal Element Checks
+            // Flip and modal trigger
             flipContainer.addEventListener('click', () => {
                 flipContainer.classList.add('flipped');
 
-                // Get modal elements - Add checks here
+                // Get modal elements
                 const modal = document.getElementById('cardModal');
                 const modalCardDiv = document.getElementById('modalCard');
                 const modalCardImage = document.getElementById('modalCardImage');
                 const modalCardName = document.getElementById('modalCardName');
-                const modalPositionName = document.getElementById('modalPositionName'); // Check this one!
+                const modalPositionName = document.getElementById('modalPositionName');
                 const modalCardDescription = document.getElementById('modalCardDescription');
                 const modalCardMeaning = document.getElementById('modalCardMeaning');
-                const modalCardContext = document.getElementById('modalCardContext'); // This was the one failing
+                const modalCardContext = document.getElementById('modalCardContext');
 
                 // Ensure modal elements exist before trying to set properties
                 if (!modal || !modalCardDiv || !modalCardImage || !modalCardName || !modalPositionName || !modalCardDescription || !modalCardMeaning || !modalCardContext) {
                      console.error("Modal elements not found in DOM!");
-                     // Optionally, show an alert to the user
-                     // alert("Error: Could not display card details. Modal elements are missing."); // Removed this alert to avoid blocking UI
+                     // The check in HTML fix addresses this, but keep console log for debugging
                      return; // Stop execution if elements are missing
                 }
 
                 // Update modal card visual (image)
-                modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+                const modalImageName = item.card.name ? item.card.name.replace(/\s+/g, '_').toLowerCase() : '';
+                modalCardImage.src = `images/${modalImageName}.jpg`;
 
                  // Handle image error for the modal image
                  modalCardImage.onerror = function() {
@@ -1218,11 +1224,12 @@ document.getElementById('start').addEventListener('click', () => {
 
 
                 // Update textual details below the card visual
-                modalCardName.textContent = `${item.card.name} (${item.isReversed ? 'Reversed' : 'Upright'})`;
+                modalCardName.textContent = `${item.card.name || 'Unknown Card'} (${item.isReversed ? 'Reversed' : 'Upright'})`;
                 modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
-                modalCardDescription.textContent = `Description: ${item.card.description}`;
-                modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning}`;
-                modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning}" is influencing the aspect of your reading related to ${item.positionDescription}.`;
+                modalCardDescription.textContent = `Description: ${item.card.description || 'No description available.'}`; // Add default text
+                modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning || 'No meaning available.'}`; // Add default text
+                modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning || 'unknown energy'}" is influencing the aspect of your reading related to ${item.positionDescription || 'this position'}.`;
+
 
                  // Update modal card container background color (optional, matches physical card color)
                  if (item.card.color) {
@@ -1233,17 +1240,14 @@ document.getElementById('start').addEventListener('click', () => {
                      const g = parseInt(hex.substring(2, 4), 16);
                      const b = parseInt(hex.substring(4, 6), 16);
                      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                      // Note: This color applies to text *within* the modalCardDiv, not the text elements *below* it.
-                      // Styles for text *below* the modalCardDiv should be handled by their specific IDs/classes in CSS.
                       modalCardDiv.style.color = luminance > 0.5 ? '#000' : '#fff'; // Text color within the modal card visual div
                  } else {
                      modalCardDiv.style.backgroundColor = '#fff';
                       modalCardDiv.style.color = '#000';
                  }
 
-
                 modal.style.display = 'flex';
-            }, { once: true });
+            }, { once: true }); // Use { once: true } to only add the listener once per card flip
 
             cardsDiv.appendChild(flipContainer);
 
@@ -1257,342 +1261,10 @@ document.getElementById('start').addEventListener('click', () => {
 
 // Modal Close
 document.getElementById('closeModal').addEventListener('click', () => {
-    document.getElementById('cardModal').style.display = 'none';
-});
-
-// Full Interpretation
-document.getElementById('interpret').addEventListener('click', () => {
-    console.log("Interpret button clicked.");
-     if (!reading) {
-         console.warn("No reading data available to interpret.");
-         const interpretationDiv = document.getElementById('interpretation');
-         if (interpretationDiv) {
-             interpretationDiv.innerHTML = "<p style='color: red;'>Please start a reading first.</p>";
-             interpretationDiv.style.display = 'block';
-         } else {
-              console.error("Interpretation display element not found.");
-         }
-         return;
+    const modal = document.getElementById('cardModal');
+     if(modal) { // Add safety check
+        modal.style.display = 'none';
      }
-    // Pass personal info to interpretation generation
-    const interpretationHTML = generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign);
-    const interpretationDiv = document.getElementById('interpretation');
-    if (interpretationDiv) { // Check if interpretation div exists
-        interpretationDiv.innerHTML = interpretationHTML;
-        interpretationDiv.style.display = 'block';
-        console.log("Interpretation displayed.");
-    } else {
-         console.error("Interpretation display element not found.");
-    }
-});
-
-// New Reading
-document.getElementById('newReading').addEventListener('click', () => {
-    document.querySelector('.form').style.display = 'block';
-    document.getElementById('reading').style.display = 'none';
-    document.getElementById('interpretation').style.display = 'none';
-    document.getElementById('cards').innerHTML = ''; // Clear previous cards
-    document.getElementById('question').value = '';
-    document.getElementById('readerName').value = ''; // Clear name
-    document.getElementById('readerDob').value = ''; // Clear DOB
-    document.getElementById('reversals').checked = true;
-
-    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
-    if (personalInfoDisplayElem) personalInfoDisplayElem.textContent = ""; // Clear personal info display
-
-     const questionDisplayElem = document.getElementById('questionDisplay');
-     if (questionDisplayElem) questionDisplayElem.textContent = ""; // Clear question display
-
-    lifePath = null; // Reset
-    zodiacSign = null; // Reset
-     reading = null; // Clear previous reading data
-     spreadType = null; // Clear previous spread type
-});
-
-
-// Fisher-Yates Shuffle Algorithm
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-// Draw Cards from the Deck
-function drawCards(deck, num, useReversals) {
-    const shuffled = shuffle([...deck]);
-    return shuffled.slice(0, num).map(card => ({
-        ...card,
-        isReversed: useReversals ? Math.random() < 0.5 : false
-    }));
-}
-
-// Categorize the Question
-function categorizeQuestion(question) {
-    const qLower = question.toLowerCase();
-    if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
-    if (/career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
-    if (/health|body|energy|wellness/i.test(qLower)) return "health and well-being";
-    if (/spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
-    if (/family|home|move|living/i.test(qLower)) return "home and family";
-    if (/decision|choice|direction/i.test(qLower)) return "a decision or path forward";
-    return "yourself"; // Keep "yourself" as requested
-}
-
-
-// Shuffle Animation
-function animateShuffle(callback) {
-    const shuffleDiv = document.getElementById('shuffleAnimation');
-    shuffleDiv.style.display = 'block';
-    shuffleDiv.innerHTML = '';
-
-    // Create multiple card elements for visual effect
-    for (let i = 0; i < 5; i++) {
-        const card = document.createElement('div');
-        card.className = 'shuffle-card';
-        card.style.animation = `shuffle ${0.5 + i * 0.1}s ease-in-out ${i * 0.05}s infinite`;
-        shuffleDiv.appendChild(card);
-    }
-
-    // End animation after 2 seconds
-    setTimeout(() => {
-        shuffleDiv.style.display = 'none';
-        callback();
-    }, 2000);
-}
-
-// Event Listeners - FIXED Modal Element Checks
-let reading;
-let question;
-let spreadType;
-let readerName; // Store name
-let readerDob; // Store DOB
-let lifePath = null; // Store calculated numerology
-let zodiacSign = null; // Store calculated zodiac
-
-document.getElementById('start').addEventListener('click', () => {
-    spreadType = document.getElementById('spread').value;
-    question = document.getElementById('question').value;
-    readerName = document.getElementById('readerName').value.trim(); // Get name
-    readerDob = document.getElementById('readerDob').value; // Get DOB
-    const useReversals = document.getElementById('reversals').checked;
-    const spread = spreads[spreadType];
-
-    if (!spread) {
-         alert("Please select a spread.");
-         return;
-    }
-
-    // Calculate numerology and zodiac
-    lifePath = calculateLifePath(readerDob);
-    zodiacSign = getZodiacSign(readerDob);
-
-    console.log("Calculated Life Path:", lifePath);
-    console.log("Calculated Zodiac Sign:", zodiacSign);
-
-
-    document.querySelector('.form').style.display = 'none';
-    document.getElementById('reading').style.display = 'block';
-    document.getElementById('interpretation').style.display = 'none'; // Hide old interpretation
-
-
-    // Display personal info and question before shuffle
-    let personalInfoText = "";
-    if (readerName) personalInfoText += `For ${readerName}`;
-    if (lifePath !== null) personalInfoText += `${personalInfoText ? ', ' : ''}Life Path ${lifePath}`;
-    if (zodiacSign) personalInfoText += `${personalInfoText ? ', ' : ''}${zodiacSign}`;
-
-    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
-    if (personalInfoDisplayElem) { // Check if element exists
-         if (readerName || lifePath !== null || zodiacSign) {
-              personalInfoDisplayElem.textContent = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
-         } else {
-             personalInfoDisplayElem.textContent = "General reading"; // Default if no info
-         }
-    }
-
-    const questionDisplayElem = document.getElementById('questionDisplay');
-     if (questionDisplayElem) { // Check if element exists
-        questionDisplayElem.textContent = question ? `Your focus: ${question}` : "";
-     }
-
-
-    // Start shuffle animation
-    animateShuffle(() => {
-        const drawnCards = drawCards(deck, spread.positions.length, useReversals);
-        reading = spread.positions.map((pos, index) => {
-            const card = drawnCards[index];
-            if (!card) return null;
-
-            return {
-                position: pos.name,
-                card: card,
-                isReversed: card.isReversed,
-                meaning: card.isReversed ? card.reversedMeaning : card.uprightMeaning,
-                positionDescription: pos.description // Store description
-            };
-        }).filter(item => item !== null); // Remove any null entries
-
-        // Display cards with deal animation
-        const cardsDiv = document.getElementById('cards');
-        cardsDiv.innerHTML = ''; // Clear previous cards
-        reading.forEach((item, index) => {
-            const flipContainer = document.createElement('div');
-            flipContainer.className = 'flip-container';
-            flipContainer.style.animationDelay = `${index * 0.2}s`;
-
-            const flipper = document.createElement('div');
-            flipper.className = 'flipper';
-
-            const front = document.createElement('div');
-            front.className = 'front';
-            // The card back image is now a background-image on the .front div via CSS
-
-            const back = document.createElement('div');
-            back.className = 'back';
-            // Set background color based on card color
-            if (item.card.color) {
-                 back.style.backgroundColor = item.card.color;
-                 const hex = item.card.color.replace('#', '');
-                 const r = parseInt(hex.substring(0, 2), 16);
-                 const g = parseInt(hex.substring(2, 4), 16);
-                 const b = parseInt(hex.substring(4, 6), 16);
-                 const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                 if (luminance > 0.5) {
-                     back.style.color = '#000';
-                 } else {
-                     back.style.color = '#fff';
-                 }
-            } else {
-                 back.style.backgroundColor = '#fff';
-                 back.style.color = '#000';
-            }
-
-             // Add image element
-             const cardImage = document.createElement('img');
-             cardImage.className = 'card-face-img';
-             cardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
-             cardImage.alt = item.card.name;
-             // If image fails, add 'show-fallback' class to the 'back' div to trigger fallback text display
-             cardImage.onerror = function() {
-                 this.style.display = 'none'; // Hide broken image icon/image
-                 this.parentElement.classList.add('show-fallback'); // Add class to parent (.back)
-             };
-
-              // Add fallback content structure for the *card face itself*
-              const fallbackContent = document.createElement('div');
-              fallbackContent.className = 'fallback-content';
-
-              const suitSymbolTop = document.createElement('div');
-              suitSymbolTop.className = 'suit-symbol suit-symbol-top';
-              suitSymbolTop.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
-
-              const cardRank = document.createElement('div');
-              cardRank.className = 'card-rank';
-              if (item.card.isMajor) {
-                   cardRank.textContent = item.card.rank;
-              } else {
-                  cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : '');
-              }
-
-              const cardNameElem = document.createElement('div');
-              cardNameElem.className = 'card-name';
-              cardNameElem.textContent = item.card.name;
-
-              const suitSymbolBottom = document.createElement('div');
-              suitSymbolBottom.className = 'suit-symbol suit-symbol-bottom';
-              suitSymbolBottom.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
-
-              fallbackContent.appendChild(suitSymbolTop);
-              fallbackContent.appendChild(cardRank);
-              fallbackContent.appendChild(cardNameElem);
-              fallbackContent.appendChild(suitSymbolBottom);
-
-
-             back.appendChild(cardImage); // Add image element
-             back.appendChild(fallbackContent); // Add fallback structure
-
-
-            flipper.appendChild(front);
-            flipper.appendChild(back);
-            flipContainer.appendChild(flipper);
-
-            // Flip and modal trigger - FIXED Modal Element Checks
-            flipContainer.addEventListener('click', () => {
-                flipContainer.classList.add('flipped');
-
-                // Get modal elements - Add checks here
-                const modal = document.getElementById('cardModal');
-                const modalCardDiv = document.getElementById('modalCard');
-                const modalCardImage = document.getElementById('modalCardImage');
-                const modalCardName = document.getElementById('modalCardName');
-                const modalPositionName = document.getElementById('modalPositionName'); // Check this one!
-                const modalCardDescription = document.getElementById('modalCardDescription');
-                const modalCardMeaning = document.getElementById('modalCardMeaning');
-                const modalCardContext = document.getElementById('modalCardContext'); // This was the one failing
-
-                // Ensure modal elements exist before trying to set properties
-                if (!modal || !modalCardDiv || !modalCardImage || !modalCardName || !modalPositionName || !modalCardDescription || !modalCardMeaning || !modalCardContext) {
-                     console.error("Modal elements not found in DOM!");
-                     // Optionally, show an alert to the user
-                     // alert("Error: Could not display card details. Modal elements are missing.");
-                     return; // Stop execution if elements are missing
-                }
-
-                // Update modal card visual (image)
-                modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
-
-                 // Handle image error for the modal image
-                 modalCardImage.onerror = function() {
-                     this.style.display = 'none'; // Hide image if it fails
-                     // The text elements below will provide the details
-                 };
-                 // Ensure image is visible by default before error check
-                 modalCardImage.style.display = 'block';
-
-
-                // Update textual details below the card visual
-                modalCardName.textContent = `${item.card.name} (${item.isReversed ? 'Reversed' : 'Upright'})`;
-                modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
-                modalCardDescription.textContent = `Description: ${item.card.description}`;
-                modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning}`;
-                modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning}" is influencing the aspect of your reading related to ${item.positionDescription}.`;
-
-                 // Update modal card container background color (optional, matches physical card color)
-                 if (item.card.color) {
-                     modalCardDiv.style.backgroundColor = item.card.color;
-                      // Adjust text color for readability based on background color (simple example)
-                     const hex = item.card.color.replace('#', '');
-                     const r = parseInt(hex.substring(0, 2), 16);
-                     const g = parseInt(hex.substring(2, 4), 16);
-                     const b = parseInt(hex.substring(4, 6), 16);
-                     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                      // Note: This color applies to text *within* the modalCardDiv, not the text elements *below* it.
-                      // Styles for text *below* the modalCardDiv should be handled by their specific IDs/classes in CSS.
-                      modalCardDiv.style.color = luminance > 0.5 ? '#000' : '#fff'; // Text color within the modal card visual div
-                 } else {
-                     modalCardDiv.style.backgroundColor = '#fff';
-                      modalCardDiv.style.color = '#000';
-                 }
-
-
-                modal.style.display = 'flex';
-            }, { once: true });
-
-            cardsDiv.appendChild(flipContainer);
-
-            // Trigger deal animation
-            setTimeout(() => {
-                flipContainer.classList.add('deal');
-            }, index * 200);
-        });
-    });
-});
-
-// Modal Close
-document.getElementById('closeModal').addEventListener('click', () => {
-    document.getElementById('cardModal').style.display = 'none';
 });
 
 // Full Interpretation
