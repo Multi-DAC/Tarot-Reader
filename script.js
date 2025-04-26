@@ -476,20 +476,30 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
     const category = categorizeQuestion(question);
 
     let interpretationHTML = "";
-    // --- FIX: Declare personalConnectionsFound outside any try/catch blocks ---
-    let personalConnectionsFound = false; // <-- Moved declaration here
+    // --- FIX: Declare variables that are calculated in specific sections but needed later ---
+    let personalConnectionsFound = false;
+    let typeCounts = {}; // Declare with default empty object
+    let sortedTypes = []; // Declare with default empty array
+    let rankCounts = {}; // Declare with default empty object
+    let significantRanks = []; // Declare with default empty array
+    let colors = {}; // Declare with default empty object
+    let sortedColors = []; // Declare with default empty array
+    let dominantColorHex = null; // Declare with default null
+    let dominantColorName = null; // Declare with default null
+    let reversedCount = 0; // Declare with default 0
+    let foundRelationships = []; // Declare with default empty array
+    // --- End variable declarations ---
+
 
     try { // Outer try-catch for the entire function (less specific, mainly for unknown fatal errors)
 
         // --- Introduction & Personal Context ---
         interpretationHTML += `<h2>Reading for ${readerName || 'Seeker'}</h2>`;
 
-        // ... (rest of the introduction and personal context code) ...
         let personalIntro = "<p>This reading seeks guidance ";
         if (readerName && lifePath !== null && zodiacSign) {
              personalIntro += `for <strong>${readerName}</strong>, whose energies are shaped by a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and being a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}). We'll explore how your innate energies interweave with the current situation.`;
-        } // ... rest of personalIntro logic ...
-         else if (readerName) { // Only name provided
+        }  else if (readerName) { // Only name provided
              personalIntro += ` for <strong>${readerName}</strong>.`;
          } else if (lifePath !== null || zodiacSign) { // Only LP or Zodiac provided, but not name
               personalIntro += `informed by your inherent energies`;
@@ -505,46 +515,131 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
          personalIntro += question ? `, this reading offers a perspective focusing on your question about <strong>${category}</strong>.` : ` addresses matters concerning <strong>${category}</strong>.`;
 
         interpretationHTML += personalIntro + "</p>";
-        // ... (rest of intro HTML) ...
-         // Explicitly state the question if one was asked
-         if (question) {
-              interpretationHTML += `<p>Your specific inquiry: <strong>"${question}"</strong></p>`;
-         }
 
-         interpretationHTML += `<p>The cards drawn reflect the energies surrounding this matter, providing insight into the past, present, and potential future.</p>`;
+        // Explicitly state the question if one was asked
+        if (question) {
+             interpretationHTML += `<p>Your specific inquiry: <strong>"${question}"</strong></p>`;
+        }
 
+        interpretationHTML += `<p>The cards drawn reflect the energies surrounding this matter, providing insight into the past, present, and potential future.</p>`;
 
         // --- Calculation of Themes ---
         try {
-            // ... (all the code for calculating typeCounts, rankCounts, colors, sortedTypes, sortedColors, significantRanks, dominantColorHex, dominantColorName, reversedCount) ...
-             const typeCounts = reading.reduce((acc, item) => {
-                 const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
-                 acc[type] = (acc[type] || 0) + 1;
+            // Assign to the variables declared at the top
+            typeCounts = reading.reduce((acc, item) => {
+                const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {});
+
+            rankCounts = reading.reduce((acc, item) => {
+                 const rank = item.card.isMajor ? 'Major Arcana' : (typeof item.card.rank === 'number' ? item.card.rank : item.card.rank);
+                 acc[rank] = (acc[rank] || 0) + 1;
                  return acc;
-             }, {});
-             // ... rest of theme calculation ...
+            }, {});
+
+            colors = reading.reduce((acc, item) => {
+                 const color = item.card.color || 'None';
+                 acc[color] = (acc[color] || 0) + 1;
+                 return acc;
+            }, {});
+
+            // Assign to the variables declared at the top
+            sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+            sortedColors = Object.entries(colors).sort((a, b) => b[1] - a[1]);
+            dominantColorHex = sortedColors.length > 0 && sortedColors[0][0] !== 'None' ? sortedColors[0][0] : null;
+            dominantColorName = dominantColorHex ? colorMap[dominantColorHex] || dominantColorHex : null;
+
+
+            // Add Numerical/Rank Themes
+            // Assign to the variable declared at the top
+            significantRanks = Object.entries(rankCounts)
+                .filter(([rank, count]) => count > 1 && rank !== 'Major Arcana') // Focus on multiple pips or court types appearing more than once
+                .sort((a, b) => b[1] - a[1]);
+
+             // Assign to the variable declared at the top
+            reversedCount = reading.filter(item => item.isReversed).length;
+
 
             // --- Overall Themes ---
             interpretationHTML += "<h2>Overall Themes and Energies</h2><ul>";
-            // ... (all the code for displaying themes based on counts, ranks, colors, reversals) ...
-             if (reading.length === 1) {
-                  interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
-             } // ... rest of theme display ...
+
+            if (reading.length === 1) {
+                 interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
+            } else {
+                 sortedTypes.forEach(([type, count]) => {
+                    if (count > 0) {
+                         let meaning = "";
+                         if (type === "Major Arcana") meaning = "suggest significant life events or transformative lessons at play, indicating this is a pivotal moment.";
+                         else if (type === "Cups") meaning = "place a strong emphasis on emotions, relationships, and intuition in your current situation.";
+                         else if (type === "Pentacles") meaning = "bring focus to material matters, work, and stability, grounding the reading in the practical realm.";
+                         else if (type === "Swords") meaning = "highlight thoughts, conflicts, and intellectual challenges, suggesting the mind is highly active or troubled.";
+                         else if (type === "Wands") meaning = "point towards energy, creativity, and action, indicating a period of dynamic movement or inspiration.";
+                         interpretationHTML += `<li>A notable presence of <strong>${type}</strong> (${count} card${count > 1 ? 's' : ''}) ${meaning}</li>`;
+                    }
+                });
+
+                if (significantRanks.length > 0) {
+                    significantRanks.forEach(([rank, count]) => {
+                        let rankMeaning = "";
+                         if (typeof rank === 'number') {
+                              if (rank === 1) rankMeaning = "new beginnings, potential, or core energy.";
+                              else if (rank === 2) rankMeaning = "balance, duality, choices, or partnership.";
+                              else if (rank === 3) rankMeaning = "growth, collaboration, or initial results.";
+                              else if (rank === 4) rankMeaning = "stability, structure, or foundation.";
+                              else if (rank === 5) rankMeaning = "conflict, change, or instability.";
+                              else if (rank === 6) rankMeaning = "harmony, resolution, or adjustment.";
+                              else if (rank === 7) rankMeaning = "reflection, challenge, or perseverance.";
+                              else if (rank === 8) rankMeaning = "action, mastery, or movement.";
+                              else if (rank === 9) rankMeaning = "culmination, fulfillment, or nearing completion.";
+                              else if (rank === 10) rankMeaning = "completion, culmination, or a final outcome.";
+                         } else if (rank === 'Page') rankMeaning = "new messages, opportunities, or youthful energy.";
+                         else if (rank === 'Knight') rankMeaning = "action, movement, or focused energy.";
+                         else if (rank === 'Queen') rankMeaning = "nurturing, emotional mastery, or inner knowing.";
+                         else if (rank === 'King') rankMeaning = "authority, mastery, or leadership.";
+
+                         if (rankMeaning) {
+                             interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
+                         }
+                    });
+                } else if (typeCounts['Major Arcana'] > reading.length / 2) {
+                     interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
+                } else if (reading.length > 1) {
+                     interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present in this situation.</li>`;
+                }
+
+
+                if (dominantColorName) {
+                     interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong> (associated with ${dominantColorHex}), which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
+                }
+
+
+                if (reversedCount > 0) {
+                     const reversedPercentage = (reversedCount / reading.length) * 100;
+                     let reversedMeaning = "";
+                     if (reversedPercentage >= 70) reversedMeaning = "suggesting significant blockages, internal conflict, or a need for deep introspection is required to move forward.";
+                     else if (reversedPercentage >= 40) reversedMeaning = "indicating some challenges, delays, or areas requiring internal reflection before progress can be made.";
+                     else reversedMeaning = "pointing to minor internal hesitations or subtle imbalances that may need attention.";
+
+                    interpretationHTML += `<li>${reversedCount} card${reversedCount > 1 ? 's' : ''} (${reversedPercentage.toFixed(0)}%) appeared in <strong>reversed</strong> orientation, ${reversedMeaning}</li>`;
+                } else if (reading.length > 0) {
+                    interpretationHTML += `<li>All cards appeared in <strong>upright</strong> orientation, suggesting energies are flowing freely and directly in this situation.</li>`;
+                }
+            }
 
             interpretationHTML += "</ul>";
 
         } catch(e) {
              console.error("Error generating Overall Themes:", e);
-             interpretationHTML += "</ul><p style='color: red;'>Error generating overall themes.</p><ul>"; // Keep the list structure slightly valid
+             interpretationHTML += "</ul><p style='color: red;'>Error generating overall themes.</p><ul>";
         }
 
 
         // --- Individual Card Placements ---
         try {
             interpretationHTML += `<h2>Card Placements in the ${spread.name}</h2><ul>`;
-            // ... (all the code for displaying individual card meanings) ...
-             reading.forEach(item => {
-                const posDef = spread.positions.find(p => p.name === item.position);
+            reading.forEach(item => {
+                const posDef = spread.positions.find(p => p && p.name === item.position); // Added null/undefined check
                 const posDesc = posDef ? posDef.description : item.position;
                 const cardName = item.card.name;
                 const cardOrientation = item.isReversed ? 'reversed' : 'upright';
@@ -570,7 +665,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
             interpretationHTML += "</ul>";
         } catch(e) {
             console.error("Error generating Individual Placements:", e);
-            interpretationHTML += "</ul><p style='color: red;'>Error generating individual card details.</p><ul>"; // Keep the list structure slightly valid
+            interpretationHTML += "</ul><p style='color: red;'>Error generating individual card details.</p><ul>";
         }
 
 
@@ -578,43 +673,41 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         try {
             interpretationHTML += "<h2>Interactions and Relationships Between Cards</h2><ul>";
              let relationshipPatternFound = false;
-             const foundRelationships = [];
+             // Assign to the variable declared at the top
+             foundRelationships = [];
 
              if (reading.length > 1) {
                  cardRelationships.forEach(rel => {
-                     // ... (code to find card relationships) ...
-                      const card1Name = rel.cards[0];
-                      const card2Name = rel.cards.length > 1 ? rel.cards[1] : null;
+                     const card1Name = rel.cards[0];
+                     const card2Name = rel.cards.length > 1 ? rel.cards[1] : null;
 
-                      if (!card2Name) return; // Skip if not a pair relationship
+                     if (!card2Name) return;
 
-                      const item1 = reading.find(item => item && item.card && item.card.name === card1Name); // Added null/undefined checks
-                      const item2 = reading.find(item => item && item.card && item.card.name === card2Name); // Added null/undefined checks
+                     const item1 = reading.find(item => item && item.card && item.card.name === card1Name);
+                     const item2 = reading.find(item => item && item.card && item.card.name === card2Name);
 
-                      if (item1 && item2) { // Only proceed if both cards were found in the reading
-                          if (rel.context.length === 0) {
-                               // ... (General relationship logic) ...
-                                foundRelationships.push({
-                                   type: 'general',
-                                   cards: [item1, item2],
-                                   meaning: rel.meaning
-                               });
-                               relationshipPatternFound = true;
-                          } else {
-                              // ... (Contextual relationship logic) ...
-                              const item1PosMatch = rel.context.includes(item1.position);
-                              const item2PosMatch = rel.context.includes(item2.position);
+                     if (item1 && item2) {
+                         if (rel.context.length === 0) {
+                              foundRelationships.push({
+                                  type: 'general',
+                                  cards: [item1, item2],
+                                  meaning: rel.meaning
+                              });
+                              relationshipPatternFound = true;
+                         } else {
+                             const item1PosMatch = rel.context.includes(item1.position);
+                             const item2PosMatch = rel.context.includes(item2.position);
 
-                              if (item1PosMatch && item2PosMatch && item1.position !== item2.position) {
+                             if (item1PosMatch && item2PosMatch && item1.position !== item2.position) {
                                   foundRelationships.push({
                                       type: 'contextual',
                                       cards: [item1, item2],
                                       meaning: rel.meaning
                                   });
                                   relationshipPatternFound = true;
-                              }
-                          }
-                      }
+                             }
+                         }
+                     }
                  });
 
                  if (foundRelationships.length > 0) {
@@ -626,12 +719,11 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                           if (foundRel.type === 'general') {
                               relationshipText = `A general theme emerges from the presence of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> in this reading. ${foundRel.meaning}`;
                           } else {
-                               const posDef1 = spread.positions.find(p => p && p.name === item1.position); // Added null/undefined check
+                               const posDef1 = spread.positions.find(p => p && p.name === item1.position);
                                const posDesc1 = posDef1 ? posDef1.description : item1.position;
-                               const posDef2 = spread.positions.find(p => p && p.name === item2.position); // Added null/undefined check
+                               const posDef2 = spread.positions.find(p => p && p.name === item2.position);
                                const posDesc2 = posDef2 ? posDef2.description : item2.position;
 
-                               // Ensure posDesc1 and posDesc2 are valid before including them
                                const posDescText1 = posDesc1 ? ` (${posDesc1})` : '';
                                const posDescText2 = posDesc2 ? ` (${posDesc2})` : '';
 
@@ -650,15 +742,15 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
 
         } catch(e) {
             console.error("Error generating Relationships:", e);
-             interpretationHTML += "</ul><p style='color: red;'>Error generating card relationships.</p><ul>"; // Keep the list structure slightly valid
+             interpretationHTML += "</ul><p style='color: red;'>Error generating card relationships.</p><ul>";
         }
 
 
-        // --- Connections to Your Energy (Life Path & Zodiac) - Enhanced ---
-        if (lifePath !== null || zodiacSign) { // Check if there's *any* personal info to process
+        // --- Connections to Your Energy (Life Path & Zodiac) - Enhanced) ---
+        if (lifePath !== null || zodiacSign) {
             try {
                  interpretationHTML += "<h2>Connections to Your Personal Energy</h2><ul>";
-                 // personalConnectionsFound is now declared outside the try block - GOOD!
+                 // personalConnectionsFound is declared at the top - GOOD!
 
                  const suitElement = { "Wands": "Fire", "Cups": "Water", "Swords": "Air", "Pentacles": "Earth" };
                  const zodiacElements = {
@@ -668,12 +760,12 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                      "Taurus": "Earth", "Virgo": "Earth", "Capricorn": "Earth"
                  };
 
-                 if (zodiacSign && zodiacElements[zodiacSign]) { // Check if zodiacSign is valid and maps to an element
+                 if (zodiacSign && zodiacElements[zodiacSign]) {
                      const userElement = zodiacElements[zodiacSign];
                      const resonantSuits = Object.keys(suitElement).filter(suit => suitElement[suit] === userElement);
-                     const resonantCards = reading.filter(item => item && item.card && resonantSuits.includes(item.card.suit)); // Added null/undefined checks
+                     const resonantCards = reading.filter(item => item && item.card && resonantSuits.includes(item.card.suit));
 
-                      if (resonantSuits.length > 0) { // Only discuss if resonant suits exist
+                      if (resonantSuits.length > 0) {
                            if (resonantCards.length > 0) {
                                 interpretationHTML += `<li>As a <strong>${zodiacSign}</strong>, whose energy is aligned with the <strong>${userElement}</strong> element, the presence of <strong>${resonantSuits.join(' and ')}</strong> cards in your reading (${resonantCards.map(c => c.card.name).join(', ')}) may indicate themes related to ${getZodiacMeaning(zodiacSign)} are particularly emphasized or active now.</li>`;
                                 personalConnectionsFound = true;
@@ -684,28 +776,26 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                       }
                  }
 
-                 if (lifePath !== null) { // Check if lifePath is calculated
-                      // Adjusted find logic to handle LP 0, 22, 33 which don't have direct rank matches in standard decks
-                      // LP 0 is Fool (rank 0)
-                      // LP 11 is Justice (rank 11)
-                      // LP 22 often relates to The World (rank 21) or Fool (rank 0) or Judgement (rank 20) - let's associate 22 with World for a potential match
-                      // LP 33 has no standard major arcana association
+                 if (lifePath !== null) {
                       let mappedLifePathRank = null;
-                      if (lifePath >= 1 && lifePath <= 21 && lifePath !== 10) { // Ranks 1-9, 11-21 exist
+                      if (lifePath >= 1 && lifePath <= 21 && lifePath !== 10) {
                           mappedLifePathRank = lifePath;
-                      } else if (lifePath === 0) { // The Fool is rank 0
+                      } else if (lifePath === 0) {
                           mappedLifePathRank = 0;
-                      } else if (lifePath === 22) { // Associate 22 with The World (Rank 21) - a common interpretation
-                           mappedLifePathRank = 21;
-                      } // 10, 33, etc. will not map to a specific rank in this deck
+                      } else if (lifePath === 22) {
+                           mappedLifePathRank = 21; // The World
+                      } else if (lifePath === 11) { // Handle Master Number 11 explicitly if not already covered by 1-21
+                          mappedLifePathRank = 11; // Justice
+                      }
+                      // LP 33 still won't map
 
                       const lifePathCard = mappedLifePathRank !== null ? deck.find(card => card.isMajor && card.rank === mappedLifePathRank) : null;
 
-                      if (lifePathCard) { // Only proceed if a corresponding Major Arcana card was found
-                           const drawnLifePathCardItem = reading.find(item => item && item.card && item.card.name === lifePathCard.name); // Added null/undefined checks
+                      if (lifePathCard) {
+                           const drawnLifePathCardItem = reading.find(item => item && item.card && item.card.name === lifePathCard.name);
                            if (drawnLifePathCardItem) {
-                                const posDef = spread.positions.find(p => p && p.name === drawnLifePathCardItem.position); // Added null/undefined check
-                                const posDesc = posDef ? posDef.description : drawnLifePathCardItem.position; // Robust lookup
+                                const posDef = spread.positions.find(p => p && p.name === drawnLifePathCardItem.position);
+                                const posDesc = posDef ? posDef.description : drawnLifePathCardItem.position;
                                  const posDescText = posDesc ? ` (${posDesc})` : '';
 
                                 interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>. This card appeared in the <strong>${drawnLifePathCardItem.position}</strong> position${posDescText}. This strongly suggests that lessons or themes directly related to your core life purpose (${getLifePathMeaning(lifePath)}) are central to this aspect of your reading right now.</li>`;
@@ -740,7 +830,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                  interpretationHTML += "</ul>";
             } catch(e) {
                 console.error("Error generating Personal Connections:", e);
-                 interpretationHTML += "</ul><p style='color: red;'>Error generating personal connections.</p><ul>"; // Keep list structure slightly valid
+                 interpretationHTML += "</ul><p style='color: red;'>Error generating personal connections.</p><ul>";
             }
         } else {
              // If no personal info was provided at all
@@ -754,7 +844,6 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
 
             let synthesis = "<p>Bringing together the insights from the individual cards, their interactions, and the overall themes";
 
-            // Removed the potentially problematic nested if(personalConnectionsFound) here
             if (lifePath !== null || zodiacSign) { // Only add personal info mention if any was provided
                  synthesis += `, alongside the influence of your inherent energies`;
                  if (lifePath !== null && zodiacSign) {
@@ -768,28 +857,56 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
 
             synthesis += `, this reading provides a multi-layered perspective on your question about <strong>${category}</strong>. It seems to highlight `;
 
-            // ... (rest of synthesis logic using keyThemes, reversedCount, foundRelationships) ...
+            const keyThemes = [];
+            const majorArcanaCount = typeCounts["Major Arcana"] || 0; // Use the variable declared at the top
+            const dominantSuitEntry = sortedTypes.length > 0 ? sortedTypes[0] : null; // Use the variable declared at the top
+            const dominantSuit = dominantSuitEntry && dominantSuitEntry[0] !== 'Major Arcana' ? dominantSuitEntry[0] : null;
 
-             const keyThemes = [];
-             // ... (populate keyThemes based on types, ranks, colors) ...
+            if (majorArcanaCount > reading.length / 3) keyThemes.push("significant life events and transformations");
+            else if (majorArcanaCount === 0 && reading.length > 1) keyThemes.push("the practical, day-to-day aspects of the situation");
 
-             if (keyThemes.length > 0) {
-                 synthesis += keyThemes.join(", ") + ". ";
-             } else {
-                 synthesis += "various facets of your current situation. "; // Fallback if no themes identified (unlikely)
+            if (dominantSuit) {
+                let suitTheme = "";
+                 if (dominantSuit === "Cups") suitTheme = "the importance of emotions and relationships";
+                 else if (dominantSuit === "Pentacles") suitTheme = "focus on material stability and practical matters";
+                 else if (dominantSuit === "Swords") suitTheme = "challenges or clarity related to thoughts and communication";
+                 else if (dominantSuit === "Wands") suitTheme = "energy, action, and creative pursuits";
+                keyThemes.push(`a strong emphasis on <strong>${dominantSuit}</strong> energies (${suitTheme})`);
+            }
+
+            if (significantRanks.length > 0) { // Use the variable declared at the top
+                 significantRanks.forEach(([rank, count], index) => {
+                      let rankMeaning = "";
+                       if (typeof rank === 'number') {
+                            if (rank === 1) rankMeaning = "new beginnings"; else if (rank === 2) rankMeaning = "balance or choices"; else if (rank === 3) rankMeaning = "growth or collaboration"; else if (rank === 4) rankMeaning = "stability"; else if (rank === 5) rankMeaning = "change or conflict"; else if (rank === 6) rankMeaning = "harmony or adjustment"; else if (rank === 7) rankMeaning = "reflection or perseverance"; else if (rank === 8) rankMeaning = "action or mastery"; else if (rank === 9) rankMeaning = "culmination or fulfillment"; else if (rank === 10) rankMeaning = "completion";
+                       } else if (rank === 'Page') rankMeaning = "new opportunities"; else if (rank === 'Knight') rankMeaning = "action or movement"; else if (rank === 'Queen') rankMeaning = "nurturing or emotional mastery"; else if (rank === 'King') rankMeaning = "authority or leadership";
+                     if (rankMeaning) {
+                         keyThemes.push(`themes of <strong>${rank}</strong> (${rankMeaning})`);
+                     }
+                 });
+            }
+
+            if (dominantColorName) { // Use the variable declared at the top
+                 keyThemes.push(`the pervasive influence of <strong>${dominantColorName}</strong> energies (${getColorMeaning(dominantColorName)})`);
+            }
+
+
+            if (keyThemes.length > 0) {
+                synthesis += keyThemes.join(", ") + ". ";
+            } else {
+                synthesis += "various facets of your current situation. ";
+            }
+
+             if (reversedCount > 0 && reading.length > 0) { // Use the variable declared at the top
+                  const reversedPercentage = (reversedCount / reading.length) * 100;
+                  if (reversedPercentage >= 70) synthesis += "The high number of reversals emphasizes that significant internal work, overcoming obstacles, or shifting perspective is crucial now. ";
+                  else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests that internal blockages, external delays, or a need to re-evaluate your approach are significant factors. ";
+                  else synthesis += "A few reversals indicate subtle energies, minor hesitations, or areas requiring slight adjustment. ";
+             } else if (reading.length > 0) {
+                 synthesis += "The absence of reversals suggests the energies are flowing clearly. ";
              }
 
-              const reversedCount = reading.filter(item => item.isReversed).length;
-              if (reversedCount > 0 && reading.length > 0) {
-                   const reversedPercentage = (reversedCount / reading.length) * 100;
-                   if (reversedPercentage >= 70) synthesis += "The high number of reversals emphasizes that significant internal work, overcoming obstacles, or shifting perspective is crucial now. ";
-                   else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests that internal blockages, external delays, or a need to re-evaluate your approach are significant factors. ";
-                   else synthesis += "A few reversals indicate subtle energies, minor hesitations, or areas requiring slight adjustment. ";
-              } else if (reading.length > 0) {
-                  synthesis += "The absence of reversals suggests the energies are flowing clearly. ";
-              }
-
-             if (foundRelationships && foundRelationships.length > 0) { // Explicitly check foundRelationships exists and is not empty
+             if (foundRelationships && foundRelationships.length > 0) { // Use the variable declared at the top
                   synthesis += "The interactions between certain cards provide deeper insight. For example: ";
                   foundRelationships.slice(0, 2).forEach((rel, index) => {
                        const item1 = rel.cards[0];
@@ -799,9 +916,9 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
                            if (rel.type === 'general') {
                                 relationshipSnippet = `the pairing of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> suggests ${rel.meaning}`;
                            } else {
-                                const posDef1 = spread.positions.find(p => p && p.name === item1.position); // Added null/undefined check
+                                const posDef1 = spread.positions.find(p => p && p.name === item1.position);
                                 const posDesc1 = posDef1 ? posDef1.description : item1.position;
-                                const posDef2 = spread.positions.find(p => p && p.name === item2.position); // Added null/undefined check
+                                const posDef2 = spread.positions.find(p => p && p.name === item2.position);
                                 const posDesc2 = posDef2 ? posDef2.description : item2.position;
                                 const posDescText1 = posDesc1 ? ` (${posDesc1})` : '';
                                 const posDescText2 = posDesc2 ? ` (${posDesc2})` : '';
@@ -853,6 +970,344 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
         return "<p style='color: red;'>An unexpected error occurred while generating the interpretation. Please check the console for details or try a different spread.</p>";
     }
 }
+
+// ... (rest of the script: shuffle, drawCards, categorizeQuestion, animateShuffle, event listeners for start, closeModal, interpret, newReading) ...
+
+// Keep the rest of your script.js as is. The fix was isolated to the generateInterpretation function.
+
+// Fisher-Yates Shuffle Algorithm
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Draw Cards from the Deck
+function drawCards(deck, num, useReversals) {
+    const shuffled = shuffle([...deck]);
+    return shuffled.slice(0, num).map(card => ({
+        ...card,
+        isReversed: useReversals ? Math.random() < 0.5 : false
+    }));
+}
+
+// Categorize the Question
+function categorizeQuestion(question) {
+    const qLower = question.toLowerCase();
+    if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
+    if (/career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
+    if (/health|body|energy|wellness/i.test(qLower)) return "health and well-being";
+    if (/spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
+    if (/family|home|move|living/i.test(qLower)) return "home and family";
+    if (/decision|choice|direction/i.test(qLower)) return "a decision or path forward";
+    return "yourself"; // Keep "yourself" as requested
+}
+
+
+// Shuffle Animation
+function animateShuffle(callback) {
+    const shuffleDiv = document.getElementById('shuffleAnimation');
+    shuffleDiv.style.display = 'block';
+    shuffleDiv.innerHTML = '';
+
+    // Create multiple card elements for visual effect
+    for (let i = 0; i < 5; i++) {
+        const card = document.createElement('div');
+        card.className = 'shuffle-card';
+        card.style.animation = `shuffle ${0.5 + i * 0.1}s ease-in-out ${i * 0.05}s infinite`;
+        shuffleDiv.appendChild(card);
+    }
+
+    // End animation after 2 seconds
+    setTimeout(() => {
+        shuffleDiv.style.display = 'none';
+        callback();
+    }, 2000);
+}
+
+// Event Listeners - FIXED Modal Element Checks
+let reading;
+let question;
+let spreadType;
+let readerName; // Store name
+let readerDob; // Store DOB
+let lifePath = null; // Store calculated numerology
+let zodiacSign = null; // Store calculated zodiac
+
+document.getElementById('start').addEventListener('click', () => {
+    spreadType = document.getElementById('spread').value;
+    question = document.getElementById('question').value;
+    readerName = document.getElementById('readerName').value.trim(); // Get name
+    readerDob = document.getElementById('readerDob').value; // Get DOB
+    const useReversals = document.getElementById('reversals').checked;
+    const spread = spreads[spreadType];
+
+    if (!spread) {
+         alert("Please select a spread.");
+         return;
+    }
+
+    // Calculate numerology and zodiac
+    lifePath = calculateLifePath(readerDob);
+    zodiacSign = getZodiacSign(readerDob);
+
+    console.log("Calculated Life Path:", lifePath);
+    console.log("Calculated Zodiac Sign:", zodiacSign);
+
+
+    document.querySelector('.form').style.display = 'none';
+    document.getElementById('reading').style.display = 'block';
+    document.getElementById('interpretation').style.display = 'none'; // Hide old interpretation
+
+
+    // Display personal info and question before shuffle
+    let personalInfoText = "";
+    if (readerName) personalInfoText += `For ${readerName}`;
+    if (lifePath !== null) personalInfoText += `${personalInfoText ? ', ' : ''}Life Path ${lifePath}`;
+    if (zodiacSign) personalInfoText += `${personalInfoText ? ', ' : ''}${zodiacSign}`;
+
+    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
+    if (personalInfoDisplayElem) { // Check if element exists
+         if (readerName || lifePath !== null || zodiacSign) {
+              personalInfoDisplayElem.textContent = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
+         } else {
+             personalInfoDisplayElem.textContent = "General reading"; // Default if no info
+         }
+    }
+
+    const questionDisplayElem = document.getElementById('questionDisplay');
+     if (questionDisplayElem) { // Check if element exists
+        questionDisplayElem.textContent = question ? `Your focus: ${question}` : "";
+     }
+
+
+    // Start shuffle animation
+    animateShuffle(() => {
+        const drawnCards = drawCards(deck, spread.positions.length, useReversals);
+        reading = spread.positions.map((pos, index) => {
+            const card = drawnCards[index];
+            if (!card) return null;
+
+            return {
+                position: pos.name,
+                card: card,
+                isReversed: card.isReversed,
+                meaning: card.isReversed ? card.reversedMeaning : card.uprightMeaning,
+                positionDescription: pos.description // Store description
+            };
+        }).filter(item => item !== null); // Remove any null entries
+
+        // Display cards with deal animation
+        const cardsDiv = document.getElementById('cards');
+        cardsDiv.innerHTML = ''; // Clear previous cards
+        reading.forEach((item, index) => {
+            const flipContainer = document.createElement('div');
+            flipContainer.className = 'flip-container';
+            flipContainer.style.animationDelay = `${index * 0.2}s`;
+
+            const flipper = document.createElement('div');
+            flipper.className = 'flipper';
+
+            const front = document.createElement('div');
+            front.className = 'front';
+            // The card back image is now a background-image on the .front div via CSS
+
+            const back = document.createElement('div');
+            back.className = 'back';
+            // Set background color based on card color
+            if (item.card.color) {
+                 back.style.backgroundColor = item.card.color;
+                 const hex = item.card.color.replace('#', '');
+                 const r = parseInt(hex.substring(0, 2), 16);
+                 const g = parseInt(hex.substring(2, 4), 16);
+                 const b = parseInt(hex.substring(4, 6), 16);
+                 const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                 if (luminance > 0.5) {
+                     back.style.color = '#000';
+                 } else {
+                     back.style.color = '#fff';
+                 }
+            } else {
+                 back.style.backgroundColor = '#fff';
+                 back.style.color = '#000';
+            }
+
+             // Add image element
+             const cardImage = document.createElement('img');
+             cardImage.className = 'card-face-img';
+             cardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+             cardImage.alt = item.card.name;
+             // If image fails, add 'show-fallback' class to the 'back' div to trigger fallback text display
+             cardImage.onerror = function() {
+                 this.style.display = 'none'; // Hide broken image icon/image
+                 this.parentElement.classList.add('show-fallback'); // Add class to parent (.back)
+             };
+
+              // Add fallback content structure for the *card face itself*
+              const fallbackContent = document.createElement('div');
+              fallbackContent.className = 'fallback-content';
+
+              const suitSymbolTop = document.createElement('div');
+              suitSymbolTop.className = 'suit-symbol suit-symbol-top';
+              suitSymbolTop.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
+
+              const cardRank = document.createElement('div');
+              cardRank.className = 'card-rank';
+              if (item.card.isMajor) {
+                   cardRank.textContent = item.card.rank;
+              } else {
+                  cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : '');
+              }
+
+              const cardNameElem = document.createElement('div');
+              cardNameElem.className = 'card-name';
+              cardNameElem.textContent = item.card.name;
+
+              const suitSymbolBottom = document.createElement('div');
+              suitSymbolBottom.className = 'suit-symbol suit-symbol-bottom';
+              suitSymbolBottom.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
+
+              fallbackContent.appendChild(suitSymbolTop);
+              fallbackContent.appendChild(cardRank);
+              fallbackContent.appendChild(cardNameElem);
+              fallbackContent.appendChild(suitSymbolBottom);
+
+
+             back.appendChild(cardImage); // Add image element
+             back.appendChild(fallbackContent); // Add fallback structure
+
+
+            flipper.appendChild(front);
+            flipper.appendChild(back);
+            flipContainer.appendChild(flipper);
+
+            // Flip and modal trigger - FIXED Modal Element Checks
+            flipContainer.addEventListener('click', () => {
+                flipContainer.classList.add('flipped');
+
+                // Get modal elements - Add checks here
+                const modal = document.getElementById('cardModal');
+                const modalCardDiv = document.getElementById('modalCard');
+                const modalCardImage = document.getElementById('modalCardImage');
+                const modalCardName = document.getElementById('modalCardName');
+                const modalPositionName = document.getElementById('modalPositionName'); // Check this one!
+                const modalCardDescription = document.getElementById('modalCardDescription');
+                const modalCardMeaning = document.getElementById('modalCardMeaning');
+                const modalCardContext = document.getElementById('modalCardContext'); // This was the one failing
+
+                // Ensure modal elements exist before trying to set properties
+                if (!modal || !modalCardDiv || !modalCardImage || !modalCardName || !modalPositionName || !modalCardDescription || !modalCardMeaning || !modalCardContext) {
+                     console.error("Modal elements not found in DOM!");
+                     // Optionally, show an alert to the user
+                     // alert("Error: Could not display card details. Modal elements are missing."); // Removed this alert to avoid blocking UI
+                     return; // Stop execution if elements are missing
+                }
+
+                // Update modal card visual (image)
+                modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+
+                 // Handle image error for the modal image
+                 modalCardImage.onerror = function() {
+                     this.style.display = 'none'; // Hide image if it fails
+                     // The text elements below will provide the details
+                 };
+                 // Ensure image is visible by default before error check
+                 modalCardImage.style.display = 'block';
+
+
+                // Update textual details below the card visual
+                modalCardName.textContent = `${item.card.name} (${item.isReversed ? 'Reversed' : 'Upright'})`;
+                modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
+                modalCardDescription.textContent = `Description: ${item.card.description}`;
+                modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning}`;
+                modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning}" is influencing the aspect of your reading related to ${item.positionDescription}.`;
+
+                 // Update modal card container background color (optional, matches physical card color)
+                 if (item.card.color) {
+                     modalCardDiv.style.backgroundColor = item.card.color;
+                      // Adjust text color for readability based on background color (simple example)
+                     const hex = item.card.color.replace('#', '');
+                     const r = parseInt(hex.substring(0, 2), 16);
+                     const g = parseInt(hex.substring(2, 4), 16);
+                     const b = parseInt(hex.substring(4, 6), 16);
+                     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                      // Note: This color applies to text *within* the modalCardDiv, not the text elements *below* it.
+                      // Styles for text *below* the modalCardDiv should be handled by their specific IDs/classes in CSS.
+                      modalCardDiv.style.color = luminance > 0.5 ? '#000' : '#fff'; // Text color within the modal card visual div
+                 } else {
+                     modalCardDiv.style.backgroundColor = '#fff';
+                      modalCardDiv.style.color = '#000';
+                 }
+
+
+                modal.style.display = 'flex';
+            }, { once: true });
+
+            cardsDiv.appendChild(flipContainer);
+
+            // Trigger deal animation
+            setTimeout(() => {
+                flipContainer.classList.add('deal');
+            }, index * 200);
+        });
+    });
+});
+
+// Modal Close
+document.getElementById('closeModal').addEventListener('click', () => {
+    document.getElementById('cardModal').style.display = 'none';
+});
+
+// Full Interpretation
+document.getElementById('interpret').addEventListener('click', () => {
+    console.log("Interpret button clicked.");
+     if (!reading) {
+         console.warn("No reading data available to interpret.");
+         const interpretationDiv = document.getElementById('interpretation');
+         if (interpretationDiv) {
+             interpretationDiv.innerHTML = "<p style='color: red;'>Please start a reading first.</p>";
+             interpretationDiv.style.display = 'block';
+         } else {
+              console.error("Interpretation display element not found.");
+         }
+         return;
+     }
+    // Pass personal info to interpretation generation
+    const interpretationHTML = generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign);
+    const interpretationDiv = document.getElementById('interpretation');
+    if (interpretationDiv) { // Check if interpretation div exists
+        interpretationDiv.innerHTML = interpretationHTML;
+        interpretationDiv.style.display = 'block';
+        console.log("Interpretation displayed.");
+    } else {
+         console.error("Interpretation display element not found.");
+    }
+});
+
+// New Reading
+document.getElementById('newReading').addEventListener('click', () => {
+    document.querySelector('.form').style.display = 'block';
+    document.getElementById('reading').style.display = 'none';
+    document.getElementById('interpretation').style.display = 'none';
+    document.getElementById('cards').innerHTML = ''; // Clear previous cards
+    document.getElementById('question').value = '';
+    document.getElementById('readerName').value = ''; // Clear name
+    document.getElementById('readerDob').value = ''; // Clear DOB
+    document.getElementById('reversals').checked = true;
+
+    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
+    if (personalInfoDisplayElem) personalInfoDisplayElem.textContent = ""; // Clear personal info display
+
+     const questionDisplayElem = document.getElementById('questionDisplay');
+     if (questionDisplayElem) questionDisplayElem.textContent = ""; // Clear question display
+
+    lifePath = null; // Reset
+    zodiacSign = null; // Reset
+     reading = null; // Clear previous reading data
+     spreadType = null; // Clear previous spread type
+});
 
 
 // Fisher-Yates Shuffle Algorithm
