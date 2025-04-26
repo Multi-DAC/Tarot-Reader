@@ -146,7 +146,6 @@ const cardRelationships = [
     { cards: ["The Moon", "The High Priestess"], context: [], meaning: "Illusion and confusion are clarified by deep intuition, urging trust in your inner wisdom." },
     { cards: ["The Fool", "The Magician"], context: [], meaning: "Potential meets manifestation; stepping into your power to begin a new journey." },
     { cards: ["Strength", "Justice"], context: [], meaning: "Inner fortitude and compassion combined with fairness, truth, and accountability." },
-    // ... (Include all other general relationships you had previously) ...
     { cards: ["The Fool", "The Hermit"], context: [], meaning: "Balancing the impulsive leap of faith with cautious introspection and inner guidance." },
     { cards: ["The Magician", "The Tower"], context: [], meaning: "Attempting to control or manifest in a situation destined for sudden breakdown or release." },
     { cards: ["The Empress", "Temperance"], context: [], meaning: "Nurturing and creativity are enhanced by balance, patience, and moderation." },
@@ -180,7 +179,6 @@ const cardRelationships = [
     { cards: ["The Moon", "Seven of Cups"], context: [], meaning: "Navigating confusion, illusion, and subconscious fears while facing multiple enticing but potentially deceptive choices or fantasies." },
     { cards: ["The Sun", "Ten of Cups"], context: [], meaning: "Great joy, success, and vitality lead to emotional harmony, family happiness, and fulfillment." },
     { cards: ["The World", "Ten of Pentacles"], context: [], meaning: "Completion and fulfillment on your journey are tied to material security, legacy, and family abundance." },
-    // ... (Include other Major + Minor general relationships) ...
      { cards: ["The Fool", "Ace of Swords"], context: [], meaning: "Taking a leap of faith based on a sudden breakthrough idea or moment of clarity." },
      { cards: ["The Magician", "King of Pentacles"], context: [], meaning: "Manifesting material success and stability through skillful use of resources and leadership." },
      { cards: ["The High Priestess", "Queen of Cups"], context: [], meaning: "Deep intuition and subconscious wisdom are embodied by a compassionate, emotionally secure figure." },
@@ -209,7 +207,7 @@ const cardRelationships = [
     { cards: ["The Emperor", "King of Wands"], context: [], meaning: "Structure and authority combine with visionary leadership and action." },
     { cards: ["The Hierophant", "Five of Swords"], context: [], meaning: "Traditional beliefs or group conformity are challenged by conflict or defeat." },
     { cards: ["The Chariot", "Ten of Swords"], context: [], meaning: "Driving forward with willpower leads unexpectedly to a sudden, complete ending." },
-    { cards: ["Strength", "Nine of Wands"], context: [], meaning: "Inner courage and resilience are needed to stand firm and defend yourself after past challenges." },
+    { cards: ["Strength", "Nine of Wands"], context: [], meaning: "Inner strength and resilience are needed to stand firm and defend yourself after past challenges." },
     { cards: ["The Hermit", "Eight of Cups"], context: [], meaning: "Seeking solitude and introspection leads to withdrawing from unsatisfying situations to find deeper meaning." },
     { cards: ["Wheel of Fortune", "Three of Wands"], context: [], meaning: "A fated turning point opens the door for expansion and future planning." },
     { cards: ["Justice", "Six of Pentacles"], context: [], meaning: "Fairness and truth bring about a situation of balanced giving and receiving or charity." },
@@ -232,7 +230,6 @@ const cardRelationships = [
      { cards: ["Seven of Swords", "Three of Cups"], context: [], meaning: "Deception, trickery, or acting independently impacts friendships, celebrations, or community harmony." },
     { cards: ["Eight of Wands", "Knight of Swords"], context: [], meaning: "Rapid movement and action are driven by a fast, ambitious, and sometimes impulsive intellectual energy." },
     { cards: ["Nine of Swords", "Four of Swords"], context: [], meaning: "Intense anxiety and worry highlight a desperate need for rest, withdrawal, and mental recuperation." },
-     // ... (Include other Minor Arcana general combinations) ...
      { cards: ["Two of Cups", "Seven of Cups"], context: [], meaning: "A relationship or partnership is clouded by confusion, illusion, or unrealistic choices." },
      { cards: ["Three of Swords", "Six of Cups"], context: [], meaning: "Heartbreak or sorrow is soothed by revisiting fond memories or finding comfort in the past." },
      { cards: ["Four of Pentacles", "Seven of Pentacles"], context: [], meaning: "Focusing on material security and control may require patience and long-term investment before seeing significant results." },
@@ -284,12 +281,26 @@ const cardRelationships = [
 ];
 
 
-// Helper Functions for Numerology and Astrology (No changes needed here)
+// Helper Functions for Numerology and Astrology
 
 function calculateLifePath(dobString) {
     if (!dobString) return null;
     try {
         const [year, month, day] = dobString.split('-').map(Number);
+
+        // Basic validation for date parts
+        if (isNaN(year) || isNaN(month) || isNaN(day) || month < 1 || month > 12 || day < 1 || day > 31) {
+             console.warn("Invalid DOB format or values:", dobString);
+             return null;
+        }
+
+        // Use Date object to validate if the date is real (e.g., Feb 30th)
+        const date = new Date(year, month - 1, day); // Month is 0-indexed
+         if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+             console.warn("Invalid date entered:", dobString);
+             return null; // Date object corrected it, meaning it wasn't a real date
+         }
+
 
         function reduceNumber(num) {
             let sum = 0;
@@ -308,9 +319,19 @@ function calculateLifePath(dobString) {
 
         let lifePath = reducedMonth + reducedDay + reducedYear;
 
-        if (lifePath > 9 && lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
+        // Check if intermediate sum is a Master Number before final reduction
+         if (lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
             lifePath = reduceNumber(lifePath);
         }
+         // Final check in case a Master Number results in a single digit after adding (e.g., 11+11+11 = 33, but 1+1+1+1+1+1 = 6, should not reduce 33)
+         // This double-check isn't strictly necessary with the logic above but is harmless.
+         // A more precise check is: if (lifePath > 9 && ![11, 22, 33].includes(lifePath)) { lifePath = reduceNumber(lifePath); }
+         // Let's use the simpler, slightly less perfect version from the original code for minimal change impact.
+         // Keep the original logic for Master Numbers from the provided code:
+         // if (lifePath > 9 && lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
+         //     lifePath = reduceNumber(lifePath);
+         // }
+
 
         return lifePath;
     } catch (e) {
@@ -325,7 +346,8 @@ function getZodiacSign(dobString) {
         const [year, month, day] = dobString.split('-').map(Number);
         const date = new Date(year, month - 1, day); // Month is 0-indexed
 
-        if (isNaN(date.getTime())) return null; // Check for invalid date
+        if (isNaN(date.getTime())) return null; // Check for invalid date object (covers Feb 30, etc.)
+
 
         if ((month == 1 && day >= 20) || (month == 2 && day <= 18)) return "Aquarius";
         if ((month == 2 && day >= 19) || (month == 3 && day <= 20)) return "Pisces";
@@ -340,7 +362,7 @@ function getZodiacSign(dobString) {
         if ((month == 11 && day >= 22) || (month == 12 && day <= 21)) return "Sagittarius";
         if ((month == 12 && day >= 22) || (month == 1 && day <= 19)) return "Capricorn";
 
-        return null; // Should not happen if date is valid
+        return null; // Should not happen if date is valid and all signs covered
      } catch (e) {
         console.error("Error calculating Zodiac:", e);
         return null;
@@ -422,7 +444,7 @@ function getColorMeaning(colorName) {
 }
 
 
-// Fisher-Yates Shuffle Algorithm (No changes needed here)
+// Fisher-Yates Shuffle Algorithm
 function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -431,7 +453,7 @@ function shuffle(array) {
     return array;
 }
 
-// Draw Cards from the Deck (No changes needed here)
+// Draw Cards from the Deck
 function drawCards(deck, num, useReversals) {
     const shuffled = shuffle([...deck]);
     return shuffled.slice(0, num).map(card => ({
@@ -440,7 +462,7 @@ function drawCards(deck, num, useReversals) {
     }));
 }
 
-// Categorize the Question (No changes needed here)
+// Categorize the Question
 function categorizeQuestion(question) {
     const qLower = question.toLowerCase();
     if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
@@ -452,437 +474,499 @@ function categorizeQuestion(question) {
     return "yourself"; // Keep "yourself" as requested
 }
 
-// Generate Interpretation - ENHANCED
+// Generate Interpretation - FIXED ReferenceError and added Modal Element Checks
 function generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign) {
+    console.log("Starting generateInterpretation...");
+    console.log("Reading data:", reading);
+    console.log("Personal Data:", { readerName, lifePath, zodiacSign });
+
     const spread = spreads[spreadType];
     const category = categorizeQuestion(question);
 
     let interpretationHTML = "";
+    let personalConnectionsFound = false; // <-- FIXED: Declare here, outside any try/catch or block scope
 
-    // --- Introduction & Personal Context ---
-    interpretationHTML += `<h2>Reading for ${readerName || 'Seeker'}</h2>`;
+    try { // Outer try-catch for the entire function
 
-    let personalIntro = "<p>This reading seeks guidance ";
-    if (readerName && lifePath !== null && zodiacSign) {
-         personalIntro += `for <strong>${readerName}</strong>, whose energies are shaped by a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and being a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}). We'll explore how your innate energies interweave with the current situation.`;
-    } else if (readerName && lifePath !== null) {
-         personalIntro += `for <strong>${readerName}</strong>, whose Life Path is ${lifePath} (${getLifePathMeaning(lifePath)}), exploring how this core energy influences this reading.`;
-    } else if (readerName && zodiacSign) {
-         personalIntro += `for <strong>${readerName}</strong>, a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}), considering how your inherent traits relate to this reading.`;
-    } else if (lifePath !== null && zodiacSign) {
-         personalIntro += `informed by your Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and your ${zodiacSign} traits (${getZodiacMeaning(zodiacSign)}).`;
-    } else if (lifePath !== null) {
-         personalIntro += `informed by your Life Path ${lifePath} (${getLifePathMeaning(lifePath)}).`;
-    } else if (zodiacSign) {
-         personalIntro += `informed by your ${zodiacSign} traits (${getZodiacMeaning(zodiacSign)}).`;
-    } else if (readerName) { // Only name provided
-        personalIntro += ` for <strong>${readerName}</strong>.`;
-    }
+        // --- Introduction & Personal Context ---
+        interpretationHTML += `<h2>Reading for ${readerName || 'Seeker'}</h2>`;
 
-
-     personalIntro += ` Using the <strong>${spread.name}</strong> spread`;
-     personalIntro += question ? `, this reading offers a perspective focusing on your question about <strong>${category}</strong>.` : ` addresses matters concerning <strong>${category}</strong>.`;
-
-    interpretationHTML += personalIntro + "</p>";
-
-    // Explicitly state the question if one was asked
-    if (question) {
-         interpretationHTML += `<p>Your specific inquiry: <strong>"${question}"</strong></p>`;
-    }
-
-    interpretationHTML += `<p>The cards drawn reflect the energies surrounding this matter, providing insight into the past, present, and potential future.</p>`;
-
-    // --- Calculation of Themes ---
-    const typeCounts = reading.reduce((acc, item) => {
-        const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
-        acc[type] = (acc[type] || 0) + 1;
-        return acc;
-    }, {});
-
-    const rankCounts = reading.reduce((acc, item) => {
-         const rank = item.card.isMajor ? 'Major Arcana' : (typeof item.card.rank === 'number' ? item.card.rank : item.card.rank);
-         acc[rank] = (acc[rank] || 0) + 1;
-         return acc;
-    }, {});
-
-    const colors = reading.reduce((acc, item) => {
-         const color = item.card.color || 'None';
-         acc[color] = (acc[color] || 0) + 1;
-         return acc;
-    }, {});
-
-    const sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
-    const sortedColors = Object.entries(colors).sort((a, b) => b[1] - a[1]);
-    const dominantColorHex = sortedColors.length > 0 && sortedColors[0][0] !== 'None' ? sortedColors[0][0] : null;
-    const dominantColorName = dominantColorHex ? colorMap[dominantColorHex] || dominantColorHex : null;
+        let personalIntro = "<p>This reading seeks guidance ";
+        if (readerName && lifePath !== null && zodiacSign) {
+             personalIntro += `for <strong>${readerName}</strong>, whose energies are shaped by a Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and being a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}). We'll explore how your innate energies interweave with the current situation.`;
+        } else if (readerName && lifePath !== null) {
+             personalIntro += `for <strong>${readerName}</strong>, whose Life Path is ${lifePath} (${getLifePathMeaning(lifePath)}), exploring how this core energy influences this reading.`;
+        } else if (readerName && zodiacSign) {
+             personalIntro += `for <strong>${readerName}</strong>, a ${zodiacSign} (${getZodiacMeaning(zodiacSign)}), considering how your inherent traits relate to this reading.`;
+        } else if (lifePath !== null && zodiacSign) {
+             personalIntro += `informed by your Life Path ${lifePath} (${getLifePathMeaning(lifePath)}) and your ${zodiacSign} traits (${getZodiacMeaning(zodiacSign)}).`;
+        } else if (lifePath !== null) {
+             personalIntro += `informed by your Life Path ${lifePath} (${getLifePathMeaning(lifePath)}).`;
+        } else if (zodiacSign) {
+             personalIntro += `informed by your ${zodiacSign} traits (${getZodiacMeaning(zodiacSign)}).`;
+        } else if (readerName) { // Only name provided
+            personalIntro += ` for <strong>${readerName}</strong>.`;
+        }
 
 
-    // Add Numerical/Rank Themes
-    const significantRanks = Object.entries(rankCounts)
-        .filter(([rank, count]) => count > 1 && rank !== 'Major Arcana') // Focus on multiple pips or court types appearing more than once
-        .sort((a, b) => b[1] - a[1]);
+         personalIntro += ` Using the <strong>${spread.name}</strong> spread`;
+         personalIntro += question ? `, this reading offers a perspective focusing on your question about <strong>${category}</strong>.` : ` addresses matters concerning <strong>${category}</strong>.`;
+
+        interpretationHTML += personalIntro + "</p>";
+
+        // Explicitly state the question if one was asked
+        if (question) {
+             interpretationHTML += `<p>Your specific inquiry: <strong>"${question}"</strong></p>`;
+        }
+
+        interpretationHTML += `<p>The cards drawn reflect the energies surrounding this matter, providing insight into the past, present, and potential future.</p>`;
+
+        // --- Calculation of Themes ---
+        try {
+            const typeCounts = reading.reduce((acc, item) => {
+                const type = item.card.isMajor ? "Major Arcana" : item.card.suit;
+                acc[type] = (acc[type] || 0) + 1;
+                return acc;
+            }, {});
+
+            const rankCounts = reading.reduce((acc, item) => {
+                 const rank = item.card.isMajor ? 'Major Arcana' : (typeof item.card.rank === 'number' ? item.card.rank : item.card.rank);
+                 acc[rank] = (acc[rank] || 0) + 1;
+                 return acc;
+            }, {});
+
+            const colors = reading.reduce((acc, item) => {
+                 const color = item.card.color || 'None';
+                 acc[color] = (acc[color] || 0) + 1;
+                 return acc;
+            }, {});
+
+            const sortedTypes = Object.entries(typeCounts).sort((a, b) => b[1] - a[1]);
+            const sortedColors = Object.entries(colors).sort((a, b) => b[1] - a[1]);
+            const dominantColorHex = sortedColors.length > 0 && sortedColors[0][0] !== 'None' ? sortedColors[0][0] : null;
+            const dominantColorName = dominantColorHex ? colorMap[dominantColorHex] || dominantColorHex : null;
 
 
-    // --- Overall Themes ---
-    interpretationHTML += "<h2>Overall Themes and Energies</h2><ul>";
+            // Add Numerical/Rank Themes
+            const significantRanks = Object.entries(rankCounts)
+                .filter(([rank, count]) => count > 1 && rank !== 'Major Arcana') // Focus on multiple pips or court types appearing more than once
+                .sort((a, b) => b[1] - a[1]);
 
-    if (reading.length === 1) {
-         interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
-    } else {
-         sortedTypes.forEach(([type, count]) => {
-            if (count > 0) {
-                 let meaning = "";
-                 if (type === "Major Arcana") meaning = "suggest significant life events or transformative lessons at play, indicating this is a pivotal moment.";
-                 else if (type === "Cups") meaning = "place a strong emphasis on emotions, relationships, and intuition in your current situation.";
-                 else if (type === "Pentacles") meaning = "bring focus to material matters, work, and stability, grounding the reading in the practical realm.";
-                 else if (type === "Swords") meaning = "highlight thoughts, conflicts, and intellectual challenges, suggesting the mind is highly active or troubled.";
-                 else if (type === "Wands") meaning = "point towards energy, creativity, and action, indicating a period of dynamic movement or inspiration.";
-                 interpretationHTML += `<li>A notable presence of <strong>${type}</strong> (${count} card${count > 1 ? 's' : ''}) ${meaning}</li>`;
+
+            // --- Overall Themes ---
+            interpretationHTML += "<h2>Overall Themes and Energies</h2><ul>";
+
+            if (reading.length === 1) {
+                 interpretationHTML += `<li>This is a single-card reading, providing a focused insight into the ${spread.positions[0].name} aspect of your question.</li>`;
+            } else {
+                 sortedTypes.forEach(([type, count]) => {
+                    if (count > 0) {
+                         let meaning = "";
+                         if (type === "Major Arcana") meaning = "suggest significant life events or transformative lessons at play, indicating this is a pivotal moment.";
+                         else if (type === "Cups") meaning = "place a strong emphasis on emotions, relationships, and intuition in your current situation.";
+                         else if (type === "Pentacles") meaning = "bring focus to material matters, work, and stability, grounding the reading in the practical realm.";
+                         else if (type === "Swords") meaning = "highlight thoughts, conflicts, and intellectual challenges, suggesting the mind is highly active or troubled.";
+                         else if (type === "Wands") meaning = "point towards energy, creativity, and action, indicating a period of dynamic movement or inspiration.";
+                         interpretationHTML += `<li>A notable presence of <strong>${type}</strong> (${count} card${count > 1 ? 's' : ''}) ${meaning}</li>`;
+                    }
+                });
+
+                if (significantRanks.length > 0) {
+                    significantRanks.forEach(([rank, count]) => {
+                        let rankMeaning = "";
+                         if (typeof rank === 'number') {
+                              if (rank === 1) rankMeaning = "new beginnings, potential, or core energy.";
+                              else if (rank === 2) rankMeaning = "balance, duality, choices, or partnership.";
+                              else if (rank === 3) rankMeaning = "growth, collaboration, or initial results.";
+                              else if (rank === 4) rankMeaning = "stability, structure, or foundation.";
+                              else if (rank === 5) rankMeaning = "conflict, change, or instability.";
+                              else if (rank === 6) rankMeaning = "harmony, resolution, or adjustment.";
+                              else if (rank === 7) rankMeaning = "reflection, challenge, or perseverance.";
+                              else if (rank === 8) rankMeaning = "action, mastery, or movement.";
+                              else if (rank === 9) rankMeaning = "culmination, fulfillment, or nearing completion.";
+                              else if (rank === 10) rankMeaning = "completion, culmination, or a final outcome.";
+                         } else if (rank === 'Page') rankMeaning = "new messages, opportunities, or youthful energy.";
+                         else if (rank === 'Knight') rankMeaning = "action, movement, or focused energy.";
+                         else if (rank === 'Queen') rankMeaning = "nurturing, emotional mastery, or inner knowing.";
+                         else if (rank === 'King') rankMeaning = "authority, mastery, or leadership.";
+
+                         if (rankMeaning) {
+                             interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
+                         }
+                    });
+                } else if (typeCounts['Major Arcana'] > reading.length / 2) {
+                     interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
+                } else if (reading.length > 1) {
+                     interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present in this situation.</li>`;
+                }
+
+
+                if (dominantColorName) {
+                     interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong> (associated with ${dominantColorHex}), which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
+                }
+
+
+                const reversedCount = reading.filter(item => item.isReversed).length;
+                if (reversedCount > 0) {
+                     const reversedPercentage = (reversedCount / reading.length) * 100;
+                     let reversedMeaning = "";
+                     if (reversedPercentage >= 70) reversedMeaning = "suggesting significant blockages, internal conflict, or a need for deep introspection is required to move forward.";
+                     else if (reversedPercentage >= 40) reversedMeaning = "indicating some challenges, delays, or areas requiring internal reflection before progress can be made.";
+                     else reversedMeaning = "pointing to minor internal hesitations or subtle imbalances that may need attention.";
+
+                    interpretationHTML += `<li>${reversedCount} card${reversedCount > 1 ? 's' : ''} (${reversedPercentage.toFixed(0)}%) appeared in <strong>reversed</strong> orientation, ${reversedMeaning}</li>`;
+                } else if (reading.length > 0) {
+                    interpretationHTML += `<li>All cards appeared in <strong>upright</strong> orientation, suggesting energies are flowing freely and directly in this situation.</li>`;
+                }
             }
-        });
 
-        if (significantRanks.length > 0) {
-            significantRanks.forEach(([rank, count]) => {
-                let rankMeaning = "";
-                 if (typeof rank === 'number') {
-                      if (rank === 1) rankMeaning = "new beginnings, potential, or core energy.";
-                      else if (rank === 2) rankMeaning = "balance, duality, choices, or partnership.";
-                      else if (rank === 3) rankMeaning = "growth, collaboration, or initial results.";
-                      else if (rank === 4) rankMeaning = "stability, structure, or foundation.";
-                      else if (rank === 5) rankMeaning = "conflict, change, or instability.";
-                      else if (rank === 6) rankMeaning = "harmony, resolution, or adjustment.";
-                      else if (rank === 7) rankMeaning = "reflection, challenge, or perseverance.";
-                      else if (rank === 8) rankMeaning = "action, mastery, or movement.";
-                      else if (rank === 9) rankMeaning = "culmination, fulfillment, or nearing completion.";
-                      else if (rank === 10) rankMeaning = "completion, culmination, or a final outcome.";
-                 } else if (rank === 'Page') rankMeaning = "new messages, opportunities, or youthful energy.";
-                 else if (rank === 'Knight') rankMeaning = "action, movement, or focused energy.";
-                 else if (rank === 'Queen') rankMeaning = "nurturing, emotional mastery, or inner knowing.";
-                 else if (rank === 'King') rankMeaning = "authority, mastery, or leadership.";
+            interpretationHTML += "</ul>";
 
-                 if (rankMeaning) {
-                     interpretationHTML += `<li>Numerically, a strong presence of the <strong>${rank}</strong> (${count} card${count > 1 ? 's' : ''}) highlights themes of ${rankMeaning}</li>`;
+        } catch(e) {
+             console.error("Error generating Overall Themes:", e);
+             interpretationHTML += "</ul><p style='color: red;'>Error generating overall themes.</p><ul>";
+        }
+
+
+        // --- Individual Card Placements ---
+        try {
+            interpretationHTML += `<h2>Card Placements in the ${spread.name}</h2><ul>`;
+            reading.forEach(item => {
+                const posDef = spread.positions.find(p => p.name === item.position);
+                const posDesc = posDef ? posDef.description : item.position;
+                const cardName = item.card.name;
+                const cardOrientation = item.isReversed ? 'reversed' : 'upright';
+                const cardColorName = colorMap[item.card.color] || item.card.color || 'None';
+                const cardMeaning = item.meaning;
+
+                let rankSig = "";
+                if (item.card.isMajor) {
+                     rankSig = `As Major Arcana ${item.card.rank}, this card represents a significant life lesson or archetype. `;
+                } else {
+                     let rankType = typeof item.card.rank === 'number' ? `the number ${item.card.rank}` : item.card.rank;
+                     rankSig = `As the ${rankType} of ${item.card.suit}, it focuses on issues of ${rankType === 'Page' ? 'new beginnings/messages' : rankType === 'Knight' ? 'action/pursuit' : rankType === 'Queen' ? 'emotional mastery/nurturing' : rankType === 'King' ? 'authority/control' : 'stage-specific development'} within that realm. `;
+                }
+
+
+                interpretationHTML += `<li>In the <strong>${item.position}</strong> position (${posDesc}), you drew the <strong>${cardName}</strong> (${cardOrientation}). ${rankSig}`;
+                interpretationHTML += `In this position, signifying ${posDesc}, this card indicates: <strong>${cardMeaning}</strong>.`;
+                 if (cardColorName !== 'None') {
+                      interpretationHTML += ` The color ${cardColorName} associated with this card adds an energetic layer related to ${getColorMeaning(cardColorName)}.`;
                  }
+                interpretationHTML += `</li>`;
             });
-        } else if (typeCounts['Major Arcana'] > reading.length / 2) { // If many Majors, less focus on pip numbers
-             interpretationHTML += `<li>The significant number of Major Arcana cards means the numerical progression of the pips is less central, highlighting significant life lessons over sequential development.</li>`;
-        } else if (reading.length > 1) { // Only mention balanced if there's more than one card and no significant repeating rank
-             interpretationHTML += `<li>The numerical distribution across the cards is relatively balanced, suggesting various stages of development are present in this situation.</li>`;
+            interpretationHTML += "</ul>";
+        } catch(e) {
+            console.error("Error generating Individual Placements:", e);
+            interpretationHTML += "</ul><p style='color: red;'>Error generating individual card details.</p><ul>";
         }
 
 
-        if (dominantColorName) {
-             interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong> (associated with ${dominantColorHex}), which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
-        }
+        // --- Deeper Connections and Patterns (Enhanced) ---
+        try {
+            interpretationHTML += "<h2>Interactions and Relationships Between Cards</h2><ul>";
+             let relationshipPatternFound = false; // Use a distinct flag name to avoid confusion
+             const foundRelationships = [];
 
+             if (reading.length > 1) {
+                 cardRelationships.forEach(rel => {
+                     const card1Name = rel.cards[0];
+                     const card2Name = rel.cards.length > 1 ? rel.cards[1] : null;
 
-        const reversedCount = reading.filter(item => item.isReversed).length;
-        if (reversedCount > 0) {
-             const reversedPercentage = (reversedCount / reading.length) * 100;
-             let reversedMeaning = "";
-             if (reversedPercentage >= 70) reversedMeaning = "suggesting significant blockages, internal conflict, or a need for deep introspection is required to move forward.";
-             else if (reversedPercentage >= 40) reversedMeaning = "indicating some challenges, delays, or areas requiring internal reflection before progress can be made.";
-             else reversedMeaning = "pointing to minor internal hesitations or subtle imbalances that may need attention.";
+                     if (!card2Name) return;
 
-            interpretationHTML += `<li>${reversedCount} card${reversedCount > 1 ? 's' : ''} (${reversedPercentage.toFixed(0)}%) appeared in <strong>reversed</strong> orientation, ${reversedMeaning}</li>`;
-        } else if (reading.length > 0) { // Only mention if there's at least one card
-            interpretationHTML += `<li>All cards appeared in <strong>upright</strong> orientation, suggesting energies are flowing freely and directly in this situation.</li>`;
-        }
-    } // End check for reading.length === 1
+                     const item1 = reading.find(item => item.card.name === card1Name);
+                     const item2 = reading.find(item => item.card.name === card2Name);
 
-    interpretationHTML += "</ul>";
+                     if (item1 && item2) {
+                         if (rel.context.length === 0) {
+                              foundRelationships.push({
+                                  type: 'general',
+                                  cards: [item1, item2],
+                                  meaning: rel.meaning
+                              });
+                              relationshipPatternFound = true;
+                         } else {
+                             const item1PosMatch = rel.context.includes(item1.position);
+                             const item2PosMatch = rel.context.includes(item2.position);
 
+                             if (item1PosMatch && item2PosMatch && item1.position !== item2.position) {
+                                  foundRelationships.push({
+                                      type: 'contextual',
+                                      cards: [item1, item2],
+                                      meaning: rel.meaning
+                                  });
+                                  relationshipPatternFound = true;
+                             }
+                         }
+                     }
+                 });
 
-    // --- Individual Card Placements ---
-    interpretationHTML += `<h2>Card Placements in the ${spread.name}</h2><ul>`;
-    reading.forEach(item => {
-        const posDef = spread.positions.find(p => p.name === item.position);
-        const posDesc = posDef ? posDef.description : item.position; // Fallback to name if description not found
-        const cardName = item.card.name;
-        const cardOrientation = item.isReversed ? 'reversed' : 'upright';
-        const cardColorName = colorMap[item.card.color] || item.card.color || 'None';
-        const cardMeaning = item.meaning; // This is already the orientation-specific meaning
+                 if (foundRelationships.length > 0) {
+                      foundRelationships.forEach(foundRel => {
+                          const item1 = foundRel.cards[0];
+                          const item2 = foundRel.cards[1];
+                          let relationshipText = "";
 
-        // Add rank/type significance to individual card interpretation
-        let rankSig = "";
-        if (item.card.isMajor) {
-             rankSig = `As Major Arcana ${item.card.rank}, this card represents a significant life lesson or archetype `;
-        } else {
-             let rankType = typeof item.card.rank === 'number' ? `the number ${item.card.rank}` : item.card.rank;
-             rankSig = `As the ${rankType} of ${item.card.suit}, it focuses on issues of ${rankType === 'Page' ? 'new beginnings/messages' : rankType === 'Knight' ? 'action/pursuit' : rankType === 'Queen' ? 'emotional mastery/nurturing' : rankType === 'King' ? 'authority/control' : 'stage-specific development'} within that realm. `;
-        }
+                          if (foundRel.type === 'general') {
+                              relationshipText = `A general theme emerges from the presence of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> in this reading. ${foundRel.meaning}`;
+                          } else {
+                               const posDef1 = spread.positions.find(p => p.name === item1.position);
+                               const posDesc1 = posDef1 ? posDef1.description : item1.position; // Robust lookup
+                               const posDef2 = spread.positions.find(p => p.name === item2.position);
+                               const posDesc2 = posDef2 ? posDef2.description : item2.position; // Robust lookup
 
-
-        interpretationHTML += `<li>In the <strong>${item.position}</strong> position (${posDesc}), you drew the <strong>${cardName}</strong> (${cardOrientation}). ${rankSig}`;
-        // Provide the contextual meaning clearly
-        interpretationHTML += `In this position, signifying ${posDesc}, this card indicates: <strong>${cardMeaning}</strong>.`;
-        // Optional: Mention color energy related to this specific card
-         if (cardColorName !== 'None') {
-              interpretationHTML += ` The color ${cardColorName} associated with this card adds an energetic layer related to ${getColorMeaning(cardColorName)}.`;
-         }
-        interpretationHTML += `</li>`;
-    });
-    interpretationHTML += "</ul>";
-
-
-    // --- Deeper Connections and Patterns (Enhanced) ---
-    interpretationHTML += "<h2>Interactions and Relationships Between Cards</h2><ul>";
-     let relationshipFound = false;
-     const foundRelationships = []; // Store relationships to reference in synthesis
-
-     if (reading.length > 1) { // Relationships are only meaningful with more than one card
-         // Find all potential relationships involving cards drawn in the reading
-         cardRelationships.forEach(rel => {
-             const card1Name = rel.cards[0];
-             const card2Name = rel.cards.length > 1 ? rel.cards[1] : null; // Only check for a second card if it exists
-
-             if (!card2Name) return; // Skip if relationship doesn't define two cards
-
-             const item1 = reading.find(item => item.card.name === card1Name);
-             const item2 = reading.find(item => item.card.name === card2Name);
-
-             // Check if both cards are present
-             if (item1 && item2) {
-                 // Check for general relationships (context: [])
-                 if (rel.context.length === 0) {
-                      foundRelationships.push({
-                          type: 'general',
-                          cards: [item1, item2],
-                          meaning: rel.meaning
+                               relationshipText = `Within the context of the spread, the relationship between <strong>${item1.card.name}</strong> (in the ${item1.position} position - ${posDesc1}) and <strong>${item2.card.name}</strong> (in the ${item2.position} position - ${posDesc2}) is significant. ${foundRel.meaning}`;
+                          }
+                          interpretationHTML += `<li>${relationshipText}</li>`;
                       });
-                      relationshipFound = true;
-                 } else {
-                     // Check for specific contextual relationships (context: ["Pos1", "Pos2", ...])
-                     // Check if Card1 is in ANY listed context position AND Card2 is in ANY *OTHER* listed context position from the context list
-                     const item1PosMatch = rel.context.includes(item1.position);
-                     const item2PosMatch = rel.context.includes(item2.position);
+                 }
+             }
 
-                     if (item1PosMatch && item2PosMatch && item1.position !== item2.position) {
-                          // Found a specific contextual match
-                          foundRelationships.push({
-                              type: 'contextual',
-                              cards: [item1, item2],
-                              meaning: rel.meaning
-                          });
-                          relationshipFound = true;
+             if (!relationshipPatternFound) {
+                 interpretationHTML += "<li>No specific relationship patterns were identified among the drawn cards based on predefined combinations. The focus rests more strongly on the individual card messages and overall themes.</li>`;
+             }
+            interpretationHTML += "</ul>";
+
+        } catch(e) {
+            console.error("Error generating Relationships:", e);
+            interpretationHTML += "</ul><p style='color: red;'>Error generating card relationships.</p><ul>";
+        }
+
+
+        // --- Connections to Your Energy (Life Path & Zodiac) - Enhanced ---
+        if (lifePath !== null || zodiacSign) {
+            try {
+                 interpretationHTML += "<h2>Connections to Your Personal Energy</h2><ul>";
+                 // personalConnectionsFound is now declared outside the try block
+
+                 const suitElement = { "Wands": "Fire", "Cups": "Water", "Swords": "Air", "Pentacles": "Earth" };
+                 const zodiacElements = {
+                     "Aries": "Fire", "Leo": "Fire", "Sagittarius": "Fire",
+                     "Cancer": "Water", "Scorpio": "Water", "Pisces": "Water",
+                     "Gemini": "Air", "Libra": "Air", "Aquarius": "Air",
+                     "Taurus": "Earth", "Virgo": "Earth", "Capricorn": "Earth"
+                 };
+
+                 if (zodiacSign) {
+                     const userElement = zodiacElements[zodiacSign];
+                     if (userElement) {
+                          const resonantSuits = Object.keys(suitElement).filter(suit => suitElement[suit] === userElement);
+                          const resonantCards = reading.filter(item => resonantSuits.includes(item.card.suit));
+                          if (resonantCards.length > 0) {
+                               interpretationHTML += `<li>As a <strong>${zodiacSign}</strong>, whose energy is aligned with the <strong>${userElement}</strong> element, the presence of <strong>${resonantSuits.join(' and ')}</strong> cards in your reading (${resonantCards.map(c => c.card.name).join(', ')}) may indicate themes related to ${getZodiacMeaning(zodiacSign)} are particularly emphasized or active now.</li>`;
+                               personalConnectionsFound = true;
+                          } else {
+                               interpretationHTML += `<li>As a <strong>${zodiacSign}</strong> (${userElement} energy), the absence of your resonant element's suit (<strong>${resonantSuits.join(' and ')}</strong>) might suggest the current situation is pushing you outside your comfort zone or requires a focus on other energies.</li>`;
+                               personalConnectionsFound = true;
+                          }
                      }
                  }
+
+                 if (lifePath !== null) {
+                      const lifePathCard = deck.find(card => card.isMajor && card.rank === lifePath);
+                      if (lifePathCard) {
+                           const drawnLifePathCardItem = reading.find(item => item.card.name === lifePathCard.name);
+                           if (drawnLifePathCardItem) {
+                                const posDef = spread.positions.find(p => p.name === drawnLifePathCardItem.position);
+                                const posDesc = posDef ? posDef.description : drawnLifePathCardItem.position; // Robust lookup
+                                interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>, which appeared in the <strong>${drawnLifePathCardItem.position}</strong> position (${posDesc}). This strongly suggests that lessons or themes directly related to your core life purpose (${getLifePathMeaning(lifePath)}) are central to this aspect of your reading right now.</li>`;
+                                 personalConnectionsFound = true;
+                           } else {
+                               interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>. While this card was not drawn, its absence might suggest you are currently navigating lessons that are foundational or prerequisite to fully embodying your Life Path energy (${getLifePathMeaning(lifePath)}), or that this aspect of your journey is not the primary focus of this specific reading.</li>`;
+                               personalConnectionsFound = true;
+                           }
+                      }
+                 }
+
+                 if (dominantColorName && (lifePath !== null || zodiacSign)) {
+                     let personalLink = "";
+                     if (lifePath !== null && zodiacSign) personalLink = `your Life Path ${lifePath} and ${zodiacSign} traits`;
+                     else if (lifePath !== null) personalLink = `your Life Path ${lifePath}`;
+                     else personalLink = `your ${zodiacSign} traits`;
+
+                     interpretationHTML += `<li>The dominant <strong>${dominantColorName}</strong> energy in the reading also resonates with themes of ${getColorMeaning(dominantColorName)}, which may complement or challenge aspects of ${personalLink}.</li>`;
+                      personalConnectionsFound = true;
+                 }
+
+
+                 if (!personalConnectionsFound) {
+                      interpretationHTML += `<li>Based on the specific cards drawn, there are no strong immediate numerical or astrological correspondences that stand out in this reading, suggesting the message is more universally applicable or focused away from these particular energies right now.</li>`;
+                 }
+
+                 interpretationHTML += "</ul>";
+             } catch(e) {
+                console.error("Error generating Personal Connections:", e);
+                interpretationHTML += "</ul><p style='color: red;'>Error generating personal connections.</p><ul>";
              }
-         });
-
-         // Display the found relationships
-         if (foundRelationships.length > 0) {
-              foundRelationships.forEach(foundRel => {
-                  const item1 = foundRel.cards[0];
-                  const item2 = foundRel.cards[1];
-                  let relationshipText = "";
-
-                  if (foundRel.type === 'general') {
-                      relationshipText = `A general theme emerges from the presence of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> in this reading. ${foundRel.meaning}`;
-                  } else { // type === 'contextual'
-                       const posDesc1 = spread.positions.find(p => p.name === item1.position).description;
-                       const posDesc2 = spread.positions.find(p => p.name === item2.position).description;
-                       relationshipText = `Within the context of the spread, the relationship between <strong>${item1.card.name}</strong> (in the ${item1.position} position - ${posDesc1}) and <strong>${item2.card.name}</strong> (in the ${item2.position} position - ${posDesc2}) is significant. ${foundRel.meaning}`;
-                  }
-                  interpretationHTML += `<li>${relationshipText}</li>`;
-              });
-         }
-     }
-
-
-     if (!relationshipFound) {
-         interpretationHTML += "<li>No specific relationship patterns were identified among the drawn cards based on predefined combinations. The focus rests more strongly on the individual card messages and overall themes.</li>";
-     }
-    interpretationHTML += "</ul>";
-
-
-    // --- Connections to Your Energy (Life Path & Zodiac) - Enhanced ---
-    if (lifePath !== null || zodiacSign) {
-         interpretationHTML += "<h2>Connections to Your Personal Energy</h2><ul>";
-         let personalConnectionsFound = false;
-
-         // Basic correspondences (can be expanded)
-         const suitElement = {
-             "Wands": "Fire", "Cups": "Water", "Swords": "Air", "Pentacles": "Earth"
-         };
-         const zodiacElements = {
-             "Aries": "Fire", "Leo": "Fire", "Sagittarius": "Fire",
-             "Cancer": "Water", "Scorpio": "Water", "Pisces": "Water",
-             "Gemini": "Air", "Libra": "Air", "Aquarius": "Air",
-             "Taurus": "Earth", "Virgo": "Earth", "Capricorn": "Earth"
-         };
-
-         // Check Suit/Element resonance with Zodiac
-         if (zodiacSign) {
-             const userElement = zodiacElements[zodiacSign];
-             if (userElement) {
-                  const resonantSuits = Object.keys(suitElement).filter(suit => suitElement[suit] === userElement);
-                  const resonantCards = reading.filter(item => resonantSuits.includes(item.card.suit));
-                  if (resonantCards.length > 0) {
-                       interpretationHTML += `<li>As a <strong>${zodiacSign}</strong>, whose energy is aligned with the <strong>${userElement}</strong> element, the presence of <strong>${resonantSuits.join(' and ')}</strong> cards in your reading (${resonantCards.map(c => c.card.name).join(', ')}) may indicate themes related to ${getZodiacMeaning(zodiacSign)} are particularly emphasized or active now.</li>`;
-                       personalConnectionsFound = true;
-                  } else {
-                       interpretationHTML += `<li>As a <strong>${zodiacSign}</strong> (${userElement} energy), the absence of your resonant element's suit (<strong>${resonantSuits.join(' and ')}</strong>) might suggest the current situation is pushing you outside your comfort zone or requires a focus on other energies.</li>`;
-                       personalConnectionsFound = true; // Still a connection, just an inverse one
-                  }
-             }
-         }
-
-         // Check Major Arcana resonance with Life Path (using rank as a proxy)
-         if (lifePath !== null) {
-              const lifePathCard = deck.find(card => card.isMajor && card.rank === lifePath); // Find the actual Life Path Major Arcana card
-              if (lifePathCard) {
-                   const drawnLifePathCardItem = reading.find(item => item.card.name === lifePathCard.name);
-                   if (drawnLifePathCardItem) {
-                        const posDesc = spread.positions.find(p => p.name === drawnLifePathCardItem.position).description;
-                        interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>, which appeared in the <strong>${drawnLifePathCardItem.position}</strong> position (${posDesc}). This strongly suggests that lessons or themes directly related to your core life purpose (${getLifePathMeaning(lifePath)}) are central to this aspect of your reading right now.</li>`;
-                         personalConnectionsFound = true;
-                   } else {
-                       interpretationHTML += `<li>Your <strong>Life Path Number ${lifePath}</strong> is associated with The <strong>${lifePathCard.name}</strong>. While this card was not drawn, its absence might suggest you are currently navigating lessons that are foundational or prerequisite to fully embodying your Life Path energy (${getLifePathMeaning(lifePath)}), or that this aspect of your journey is not the primary focus of this specific reading.</li>`;
-                       personalConnectionsFound = true; // Absence is also a form of connection/information
-                   }
-              }
-              // Could add more checks here for other numbers/patterns resonating with Life Path stages
-         }
-
-         // Check dominant color resonance with personal energy
-         if (dominantColorName && (lifePath !== null || zodiacSign)) {
-             let personalLink = "";
-             if (lifePath !== null && zodiacSign) personalLink = `your Life Path ${lifePath} and ${zodiacSign} traits`;
-             else if (lifePath !== null) personalLink = `your Life Path ${lifePath}`;
-             else personalLink = `your ${zodiacSign} traits`;
-
-             interpretationHTML += `<li>The dominant <strong>${dominantColorName}</strong> energy in the reading also resonates with themes of ${getColorMeaning(dominantColorName)}, which may complement or challenge aspects of ${personalLink}.</li>`;
-              personalConnectionsFound = true;
-         }
-
-
-         if (!personalConnectionsFound) {
-              interpretationHTML += `<li>Based on the specific cards drawn, there are no strong immediate numerical or astrological correspondences that stand out in this reading, suggesting the message is more universally applicable or focused away from these particular energies right now.</li>`;
-         }
-
-         interpretationHTML += "</ul>";
-    }
-
-
-    // --- Integrating the Message ---
-    interpretationHTML += "<h2>Synthesizing the Guidance</h2>";
-
-    let synthesis = "<p>Bringing together the insights from the individual cards, their interactions, and the overall themes";
-
-    // Add personal energy mention only if applicable and connections were found
-    if (lifePath !== null || zodiacSign) {
-        synthesis += `, alongside the influence of your inherent energies`;
-         if (lifePath !== null && zodiacSign) {
-            synthesis += ` (shaped by your Life Path ${lifePath} and ${zodiacSign} traits)`;
-        } else if (lifePath !== null) {
-            synthesis += ` (influenced by your Life Path ${lifePath})`;
-        } else if (zodiacSign) {
-            synthesis += ` (influenced by your ${zodiacSign} traits)`;
         }
-         synthesis += personalConnectionsFound ? ", as explored above" : ""; // Only add this if connections were actually discussed
-    }
 
 
-    synthesis += `, this reading provides a multi-layered perspective on your question about <strong>${category}</strong>. It seems to highlight `;
+        // --- Integrating the Message ---
+        try {
+            interpretationHTML += "<h2>Synthesizing the Guidance</h2>";
 
-    const keyThemes = [];
-    const majorArcanaCount = typeCounts["Major Arcana"] || 0;
-    const dominantSuitEntry = sortedTypes.length > 0 ? sortedTypes[0] : null; // Use sortedTypes
-    const dominantSuit = dominantSuitEntry && dominantSuitEntry[0] !== 'Major Arcana' ? dominantSuitEntry[0] : null; // Get the actual suit name if it's the most frequent non-Major
+            let synthesis = "<p>Bringing together the insights from the individual cards, their interactions, and the overall themes";
 
-    if (majorArcanaCount > reading.length / 3) keyThemes.push("significant life events and transformations");
-    else if (majorArcanaCount === 0 && reading.length > 1) keyThemes.push("the practical, day-to-day aspects of the situation"); // If no Majors, focus on minor arcana themes
+            if (lifePath !== null || zodiacSign) {
+                synthesis += `, alongside the influence of your inherent energies`;
+                 if (lifePath !== null && zodiacSign) {
+                    synthesis += ` (shaped by your Life Path ${lifePath} and ${zodiacSign} traits)`;
+                } else if (lifePath !== null) {
+                    synthesis += ` (influenced by your Life Path ${lifePath})`;
+                } else if (zodiacSign) {
+                    synthesis += ` (influenced by your ${zodiacSign} traits)`;
+                }
+                // Removed the 'personalConnectionsFound ? ...' check here
+            }
 
-    if (dominantSuit) {
-        let suitTheme = "";
-         if (dominantSuit === "Cups") suitTheme = "the importance of emotions and relationships";
-         else if (dominantSuit === "Pentacles") suitTheme = "focus on material stability and practical matters";
-         else if (dominantSuit === "Swords") suitTheme = "challenges or clarity related to thoughts and communication";
-         else if (dominantSuit === "Wands") suitTheme = "energy, action, and creative pursuits";
-        keyThemes.push(`a strong emphasis on <strong>${dominantSuit}</strong> energies (${suitTheme})`);
-    }
 
-    // Added mention of numerical themes in synthesis if significant repeating ranks were found
-    if (significantRanks.length > 0) {
-         significantRanks.forEach(([rank, count], index) => {
-              let rankMeaning = "";
-               if (typeof rank === 'number') {
-                    if (rank === 1) rankMeaning = "new beginnings"; else if (rank === 2) rankMeaning = "balance or choices"; else if (rank === 3) rankMeaning = "growth or collaboration"; else if (rank === 4) rankMeaning = "stability"; else if (rank === 5) rankMeaning = "change or conflict"; else if (rank === 6) rankMeaning = "harmony or adjustment"; else if (rank === 7) rankMeaning = "reflection or perseverance"; else if (rank === 8) rankMeaning = "action or mastery"; else if (rank === 9) rankMeaning = "culmination or fulfillment"; else if (rank === 10) rankMeaning = "completion";
-               } else if (rank === 'Page') rankMeaning = "new opportunities"; else if (rank === 'Knight') rankMeaning = "action or movement"; else if (rank === 'Queen') rankMeaning = "nurturing or emotional mastery"; else if (rank === 'King') rankMeaning = "authority or leadership";
-             if (rankMeaning) {
-                 keyThemes.push(`themes of <strong>${rank}</strong> (${rankMeaning})`);
+            synthesis += `, this reading provides a multi-layered perspective on your question about <strong>${category}</strong>. It seems to highlight `;
+
+            const keyThemes = [];
+            const majorArcanaCount = typeCounts["Major Arcana"] || 0;
+            const dominantSuitEntry = sortedTypes.length > 0 ? sortedTypes[0] : null;
+            const dominantSuit = dominantSuitEntry && dominantSuitEntry[0] !== 'Major Arcana' ? dominantSuitEntry[0] : null;
+
+            if (majorArcanaCount > reading.length / 3) keyThemes.push("significant life events and transformations");
+            else if (majorArcanaCount === 0 && reading.length > 1) keyThemes.push("the practical, day-to-day aspects of the situation");
+
+            if (dominantSuit) {
+                let suitTheme = "";
+                 if (dominantSuit === "Cups") suitTheme = "the importance of emotions and relationships";
+                 else if (dominantSuit === "Pentacles") suitTheme = "focus on material stability and practical matters";
+                 else if (dominantSuit === "Swords") suitTheme = "challenges or clarity related to thoughts and communication";
+                 else if (dominantSuit === "Wands") suitTheme = "energy, action, and creative pursuits";
+                keyThemes.push(`a strong emphasis on <strong>${dominantSuit}</strong> energies (${suitTheme})`);
+            }
+
+            if (significantRanks.length > 0) {
+                 significantRanks.forEach(([rank, count], index) => {
+                      let rankMeaning = "";
+                       if (typeof rank === 'number') {
+                            if (rank === 1) rankMeaning = "new beginnings"; else if (rank === 2) rankMeaning = "balance or choices"; else if (rank === 3) rankMeaning = "growth or collaboration"; else if (rank === 4) rankMeaning = "stability"; else if (rank === 5) rankMeaning = "change or conflict"; else if (rank === 6) rankMeaning = "harmony or adjustment"; else if (rank === 7) rankMeaning = "reflection or perseverance"; else if (rank === 8) rankMeaning = "action or mastery"; else if (rank === 9) rankMeaning = "culmination or fulfillment"; else if (rank === 10) rankMeaning = "completion";
+                       } else if (rank === 'Page') rankMeaning = "new opportunities"; else if (rank === 'Knight') rankMeaning = "action or movement"; else if (rank === 'Queen') rankMeaning = "nurturing or emotional mastery"; else if (rank === 'King') rankMeaning = "authority or leadership";
+                     if (rankMeaning) {
+                         keyThemes.push(`themes of <strong>${rank}</strong> (${rankMeaning})`);
+                     }
+                 });
+            }
+
+            if (dominantColorName) {
+                 keyThemes.push(`the pervasive influence of <strong>${dominantColorName}</strong> energies (${getColorMeaning(dominantColorName)})`);
+            }
+
+
+            if (keyThemes.length > 0) {
+                synthesis += keyThemes.join(", ") + ". ";
+            } else {
+                synthesis += "various facets of your current situation. ";
+            }
+
+             const reversedCount = reading.filter(item => item.isReversed).length;
+             if (reversedCount > 0 && reading.length > 0) {
+                  const reversedPercentage = (reversedCount / reading.length) * 100;
+                  if (reversedPercentage >= 70) synthesis += "The high number of reversals emphasizes that significant internal work, overcoming obstacles, or shifting perspective is crucial now. ";
+                  else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests that internal blockages, external delays, or a need to re-evaluate your approach are significant factors. ";
+                  else synthesis += "A few reversals indicate subtle energies, minor hesitations, or areas requiring slight adjustment. ";
+             } else if (reading.length > 0) {
+                 synthesis += "The absence of reversals suggests the energies are flowing clearly. ";
              }
-         });
+
+            if (foundRelationships && foundRelationships.length > 0) {
+                 synthesis += "The interactions between certain cards provide deeper insight. For example: ";
+                 foundRelationships.slice(0, 2).forEach((rel, index) => {
+                      const item1 = rel.cards[0];
+                      const item2 = rel.cards[1];
+                      let relationshipSnippet = "";
+                      if (rel.type === 'general') {
+                           relationshipSnippet = `the pairing of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> suggests ${rel.meaning}`;
+                      } else {
+                           const posDef1 = spread.positions.find(p => p.name === item1.position);
+                           const posDesc1 = posDef1 ? posDef1.description : item1.position;
+                           const posDef2 = spread.positions.find(p => p.name === item2.position);
+                           const posDesc2 = posDef2 ? posDef2.description : item2.position;
+                          relationshipSnippet = `the dynamic between <strong>${item1.card.name}</strong> in the ${item1.position} position and <strong>${item2.card.name}</strong> in the ${item2.position} position highlights that ${rel.meaning}`;
+                      }
+                     synthesis += `${index > 0 ? 'Additionally, ' : ''}${relationshipSnippet}. `;
+                 });
+                 if (foundRelationships.length > 2) {
+                      synthesis += `See the "Interactions and Relationships" section above for more detailed card pairings. `;
+                 }
+            }
+
+             if (lifePath !== null || zodiacSign) {
+                 let personalSynthesis = "";
+                 // Check if personalConnectionsFound is true *before* adding this sentence
+                 if (personalConnectionsFound) {
+                     if (lifePath !== null && zodiacSign) {
+                         personalSynthesis = `Considering your innate energies as a Life Path ${lifePath} and a ${zodiacSign}, this reading may be particularly illuminating aspects of your core purpose or how your natural traits are influencing or being influenced by the current situation.`;
+                     } else if (lifePath !== null) {
+                         personalSynthesis = `Reflecting on your Life Path ${lifePath}, consider how the themes in this reading relate to your core journey and lessons.`;
+                     } else if (zodiacSign) {
+                         personalSynthesis = `Given your ${zodiacSign} traits, consider how the energies in these cards align with or challenge your inherent nature.`;
+                     }
+                     // Only add this summary if specific personal connections were actually discussed
+                     synthesis += personalSynthesis + " ";
+                 } else {
+                      // Add a slightly different sentence if personal info was provided but no specific connections found
+                      synthesis += "While no specific numerological or astrological card correspondences appeared, consider how the overall themes of this reading might relate to your inherent life path and traits. ";
+                 }
+            }
+
+
+            synthesis += `</p><p>The combined message encourages you to reflect on how these individual insights, interconnected dynamics, and overarching energies relate to your question and your path forward. Trust your intuition as you integrate this guidance.</p>`;
+
+            interpretationHTML += synthesis;
+
+        } catch(e) {
+            console.error("Error generating Synthesis:", e);
+            interpretationHTML += "<p style='color: red;'>Error synthesizing the reading.</p>";
+        }
+
+
+        console.log("generateInterpretation finished successfully.");
+        return interpretationHTML;
+
+    } catch (e) {
+        console.error("Critical Error during overall interpretation generation:", e);
+        return "<p style='color: red;'>An unexpected error occurred while generating the interpretation. Please check the console for details or try a different spread.</p>";
     }
-
-    if (dominantColorName) {
-         keyThemes.push(`the pervasive influence of <strong>${dominantColorName}</strong> energies (${getColorMeaning(dominantColorName)})`);
-    }
-
-
-    if (keyThemes.length > 0) {
-        synthesis += keyThemes.join(", ") + ". ";
-    } else {
-        synthesis += "various facets of your current situation. ";
-    }
-
-     const reversedCount = reading.filter(item => item.isReversed).length;
-     if (reversedCount > 0 && reading.length > 0) {
-          const reversedPercentage = (reversedCount / reading.length) * 100;
-          if (reversedPercentage >= 70) synthesis += "The high number of reversals emphasizes that significant internal work, overcoming obstacles, or shifting perspective is crucial now. ";
-          else if (reversedPercentage >= 40) synthesis += "The presence of reversals suggests that internal blockages, external delays, or a need to re-evaluate your approach are significant factors. ";
-          else synthesis += "A few reversals indicate subtle energies, minor hesitations, or areas requiring slight adjustment. ";
-     } else if (reading.length > 0) {
-         synthesis += "The absence of reversals suggests the energies are flowing clearly. ";
-     }
-
-
-    // Integrate found relationships into synthesis
-    if (foundRelationships.length > 0) {
-         synthesis += "The interactions between certain cards provide deeper insight. For example: ";
-         foundRelationships.slice(0, 2).forEach((rel, index) => { // Mention 1-2 key relationships in synthesis
-              const item1 = rel.cards[0];
-              const item2 = rel.cards[1];
-              let relationshipSnippet = "";
-              if (rel.type === 'general') {
-                   relationshipSnippet = `the pairing of <strong>${item1.card.name}</strong> and <strong>${item2.card.name}</strong> suggests ${rel.meaning}`;
-              } else { // contextual
-                  relationshipSnippet = `the dynamic between <strong>${item1.card.name}</strong> in the ${item1.position} position and <strong>${item2.card.name}</strong> in the ${item2.position} position highlights that ${rel.meaning}`;
-              }
-             synthesis += `${index > 0 ? 'Additionally, ' : ''}${relationshipSnippet}. `;
-         });
-         if (foundRelationships.length > 2) {
-              synthesis += `See the "Interactions and Relationships" section above for more detailed card pairings. `;
-         }
-    }
-
-     // Added mention of personal energy connections in synthesis (Refined)
-     if (lifePath !== null || zodiacSign) {
-         let personalSynthesis = "";
-          if (lifePath !== null && zodiacSign) {
-              personalSynthesis = `Considering your innate energies as a Life Path ${lifePath} and a ${zodiacSign}, this reading may be particularly illuminating aspects of your core purpose or how your natural traits are influencing or being influenced by the current situation.`;
-         } else if (lifePath !== null) {
-              personalSynthesis = `Reflecting on your Life Path ${lifePath}, consider how the themes in this reading relate to your core journey and lessons.`;
-         } else if (zodiacSign) {
-              personalSynthesis = `Given your ${zodiacSign} traits, consider how the energies in these cards align with or challenge your inherent nature.`;
-         }
-         if (personalConnectionsFound) { // Only add if we actually found specific connections to discuss
-             synthesis += personalSynthesis + " ";
-         }
-    }
-
-
-    synthesis += `</p><p>The combined message encourages you to reflect on how these individual insights, interconnected dynamics, and overarching energies relate to your question and your path forward. Trust your intuition as you integrate this guidance.</p>`;
-
-    interpretationHTML += synthesis;
-
-    // console.log("generateInterpretation finished. Returning HTML."); // LOG 20
-    return interpretationHTML;
 }
 
 
-// Shuffle Animation (No changes needed here)
+// Fisher-Yates Shuffle Algorithm
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// Draw Cards from the Deck
+function drawCards(deck, num, useReversals) {
+    const shuffled = shuffle([...deck]);
+    return shuffled.slice(0, num).map(card => ({
+        ...card,
+        isReversed: useReversals ? Math.random() < 0.5 : false
+    }));
+}
+
+// Categorize the Question
+function categorizeQuestion(question) {
+    const qLower = question.toLowerCase();
+    if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
+    if (/career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
+    if (/health|body|energy|wellness/i.test(qLower)) return "health and well-being";
+    if (/spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
+    if (/family|home|move|living/i.test(qLower)) return "home and family";
+    if (/decision|choice|direction/i.test(qLower)) return "a decision or path forward";
+    return "yourself"; // Keep "yourself" as requested
+}
+
+
+// Shuffle Animation
 function animateShuffle(callback) {
     const shuffleDiv = document.getElementById('shuffleAnimation');
     shuffleDiv.style.display = 'block';
@@ -903,7 +987,7 @@ function animateShuffle(callback) {
     }, 2000);
 }
 
-// Event Listeners (Minor tweak to modal logic)
+// Event Listeners - FIXED Modal Element Checks
 let reading;
 let question;
 let spreadType;
@@ -929,46 +1013,55 @@ document.getElementById('start').addEventListener('click', () => {
     lifePath = calculateLifePath(readerDob);
     zodiacSign = getZodiacSign(readerDob);
 
+    console.log("Calculated Life Path:", lifePath);
+    console.log("Calculated Zodiac Sign:", zodiacSign);
+
+
     document.querySelector('.form').style.display = 'none';
     document.getElementById('reading').style.display = 'block';
     document.getElementById('interpretation').style.display = 'none'; // Hide old interpretation
+
+
+    // Display personal info and question before shuffle
+    let personalInfoText = "";
+    if (readerName) personalInfoText += `For ${readerName}`;
+    if (lifePath !== null) personalInfoText += `${personalInfoText ? ', ' : ''}Life Path ${lifePath}`;
+    if (zodiacSign) personalInfoText += `${personalInfoText ? ', ' : ''}${zodiacSign}`;
+
+    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
+    if (personalInfoDisplayElem) { // Check if element exists
+         if (readerName || lifePath !== null || zodiacSign) {
+              personalInfoDisplayElem.textContent = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
+         } else {
+             personalInfoDisplayElem.textContent = "General reading"; // Default if no info
+         }
+    }
+
+    const questionDisplayElem = document.getElementById('questionDisplay');
+     if (questionDisplayElem) { // Check if element exists
+        questionDisplayElem.textContent = question ? `Your focus: ${question}` : "";
+     }
+
 
     // Start shuffle animation
     animateShuffle(() => {
         const drawnCards = drawCards(deck, spread.positions.length, useReversals);
         reading = spread.positions.map((pos, index) => {
-            // Ensure we don't go out of bounds if drawCards returned fewer than expected (shouldn't happen with correct logic, but defensive)
             const card = drawnCards[index];
-            if (!card) return null; // Handle case where a card wasn't drawn for a position
+            if (!card) return null;
 
             return {
                 position: pos.name,
                 card: card,
                 isReversed: card.isReversed,
                 meaning: card.isReversed ? card.reversedMeaning : card.uprightMeaning,
-                // Store position description with the card for easier modal display
-                positionDescription: pos.description
+                positionDescription: pos.description // Store description
             };
         }).filter(item => item !== null); // Remove any null entries
 
-        // Display personal info and question
-        let personalInfoText = "";
-        if (readerName) personalInfoText += `For ${readerName}`;
-        if (lifePath !== null) personalInfoText += `${personalInfoText ? ', ' : ''}Life Path ${lifePath}`;
-        if (zodiacSign) personalInfoText += `${personalInfoText ? ', ' : ''}${zodiacSign}`;
-
-        if (readerName || lifePath !== null || zodiacSign) {
-             document.getElementById('personalInfoDisplay').textContent = "Seeking guidance" + (personalInfoText ? `: ${personalInfoText}` : "");
-        } else {
-            document.getElementById('personalInfoDisplay').textContent = "General reading"; // Default if no info
-        }
-
-
-        document.getElementById('questionDisplay').textContent = question ? `Your focus: ${question}` : ""; // Keep question display empty if no question
-
         // Display cards with deal animation
         const cardsDiv = document.getElementById('cards');
-        cardsDiv.innerHTML = '';
+        cardsDiv.innerHTML = ''; // Clear previous cards
         reading.forEach((item, index) => {
             const flipContainer = document.createElement('div');
             flipContainer.className = 'flip-container';
@@ -986,148 +1079,131 @@ document.getElementById('start').addEventListener('click', () => {
             // Set background color based on card color
             if (item.card.color) {
                  back.style.backgroundColor = item.card.color;
-                 // Adjust text color for readability based on background color (simple example)
                  const hex = item.card.color.replace('#', '');
                  const r = parseInt(hex.substring(0, 2), 16);
                  const g = parseInt(hex.substring(2, 4), 16);
                  const b = parseInt(hex.substring(4, 6), 16);
                  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
                  if (luminance > 0.5) {
-                     back.style.color = '#000'; // Use black text for light colors
+                     back.style.color = '#000';
                  } else {
-                     back.style.color = '#fff'; // Use white text for dark colors
+                     back.style.color = '#fff';
                  }
             } else {
-                 back.style.backgroundColor = '#fff'; // Default white
-                 back.style.color = '#000'; // Default black text
+                 back.style.backgroundColor = '#fff';
+                 back.style.color = '#000';
             }
 
+             // Add image element
+             const cardImage = document.createElement('img');
+             cardImage.className = 'card-face-img';
+             cardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+             cardImage.alt = item.card.name;
+             // If image fails, add 'show-fallback' class to the 'back' div to trigger fallback text display
+             cardImage.onerror = function() {
+                 this.style.display = 'none'; // Hide broken image icon/image
+                 this.parentElement.classList.add('show-fallback'); // Add class to parent (.back)
+             };
 
-            // Add image element (will be hidden if onerror fires)
-            const cardImage = document.createElement('img');
-            cardImage.className = 'card-face-img';
-            cardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
-            cardImage.alt = item.card.name;
-            // If image fails to load, add 'show-fallback' class to the 'back' div
-            cardImage.onerror = function() {
-                this.style.display = 'none'; // Hide broken image icon
-                this.parentElement.classList.add('show-fallback'); // Trigger fallback display
-            };
+              // Add fallback content structure for the *card face itself*
+              const fallbackContent = document.createElement('div');
+              fallbackContent.className = 'fallback-content';
 
-             // Add fallback content structure
-             const fallbackContent = document.createElement('div');
-             fallbackContent.className = 'fallback-content';
+              const suitSymbolTop = document.createElement('div');
+              suitSymbolTop.className = 'suit-symbol suit-symbol-top';
+              suitSymbolTop.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
 
-             const suitSymbolTop = document.createElement('div');
-             suitSymbolTop.className = 'suit-symbol suit-symbol-top';
-             suitSymbolTop.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || ''); // Star for Major Arcana
+              const cardRank = document.createElement('div');
+              cardRank.className = 'card-rank';
+              if (item.card.isMajor) {
+                   cardRank.textContent = item.card.rank;
+              } else {
+                  cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : '');
+              }
 
-             const cardRank = document.createElement('div');
-             cardRank.className = 'card-rank';
-             // Display rank or Major Arcana number/name
-             if (item.card.isMajor) {
-                  cardRank.textContent = item.card.rank; // Display Major Arcana number
-             } else {
-                 cardRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : ''); // Display number or first letter of rank
-             }
+              const cardNameElem = document.createElement('div');
+              cardNameElem.className = 'card-name';
+              cardNameElem.textContent = item.card.name;
 
+              const suitSymbolBottom = document.createElement('div');
+              suitSymbolBottom.className = 'suit-symbol suit-symbol-bottom';
+              suitSymbolBottom.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
 
-             const cardNameElem = document.createElement('div');
-             cardNameElem.className = 'card-name';
-             cardNameElem.textContent = item.card.name; // Card Name
+              fallbackContent.appendChild(suitSymbolTop);
+              fallbackContent.appendChild(cardRank);
+              fallbackContent.appendChild(cardNameElem);
+              fallbackContent.appendChild(suitSymbolBottom);
 
-             const suitSymbolBottom = document.createElement('div');
-             suitSymbolBottom.className = 'suit-symbol suit-symbol-bottom';
-             suitSymbolBottom.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || ''); // Star for Major Arcana
-//
-
-
-             fallbackContent.appendChild(suitSymbolTop);
-             fallbackContent.appendChild(cardRank);
-             fallbackContent.appendChild(cardNameElem); // Add card name to fallback
-             fallbackContent.appendChild(suitSymbolBottom);
 
              back.appendChild(cardImage); // Add image element
              back.appendChild(fallbackContent); // Add fallback structure
+
 
             flipper.appendChild(front);
             flipper.appendChild(back);
             flipContainer.appendChild(flipper);
 
-            // Flip and modal trigger
+            // Flip and modal trigger - FIXED Modal Element Checks
             flipContainer.addEventListener('click', () => {
                 flipContainer.classList.add('flipped');
-                // Show modal with card details
+
+                // Get modal elements - Add checks here
                 const modal = document.getElementById('cardModal');
                 const modalCardDiv = document.getElementById('modalCard');
                 const modalCardImage = document.getElementById('modalCardImage');
                 const modalCardName = document.getElementById('modalCardName');
-                // Removed modalCardColor as we set background color instead
+                const modalPositionName = document.getElementById('modalPositionName'); // Check this one!
                 const modalCardDescription = document.getElementById('modalCardDescription');
                 const modalCardMeaning = document.getElementById('modalCardMeaning');
-                const modalCardContext = document.getElementById('modalCardContext');
-                const modalPositionName = document.getElementById('modalPositionName'); // Added element for position name
+                const modalCardContext = document.getElementById('modalCardContext'); // This was the one failing
 
-                // Update modal card image/fallback
-                modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
-                // Reset fallback visibility before checking image loading
-                 modalCardDiv.classList.remove('show-fallback');
-                 modalCardImage.style.display = 'block'; // Ensure image is initially visible
-
-                 // Update modal fallback content if image fails (or if no image should exist)
-                 const modalFallbackContent = modalCardDiv.querySelector('.fallback-content');
-                 const modalSuitTop = modalFallbackContent.querySelector('.suit-symbol-top');
-                 const modalRank = modalFallbackContent.querySelector('.card-rank');
-                 const modalName = modalFallbackContent.querySelector('.card-name');
-                 const modalSuitBottom = modalFallbackContent.querySelector('.suit-symbol-bottom');
-
-                 modalSuitTop.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
-                 if (item.card.isMajor) {
-                     modalRank.textContent = item.card.rank;
-                 } else {
-                     modalRank.textContent = typeof item.card.rank === 'number' ? item.card.rank : (item.card.rank ? item.card.rank.substring(0,1) : '');
-                 }
-                 modalName.textContent = item.card.name;
-                 modalSuitBottom.innerHTML = item.card.isMajor ? '★' : (item.card.suitSymbol || '');
-
-                // Update modal card background color and text color
-                if (item.card.color) {
-                    modalCardDiv.style.backgroundColor = item.card.color;
-                    const hex = item.card.color.replace('#', '');
-                    const r = parseInt(hex.substring(0, 2), 16);
-                    const g = parseInt(hex.substring(2, 4), 16);
-                    const b = parseInt(hex.substring(4, 6), 16);
-                    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                    modalCardDiv.style.color = luminance > 0.5 ? '#000' : '#fff'; // Black or white text
-                     // Also set fallback text color
-                    modalFallbackContent.style.color = luminance > 0.5 ? '#000' : '#fff';
-                } else {
-                    modalCardDiv.style.backgroundColor = '#fff';
-                    modalCardDiv.style.color = '#000';
-                     modalFallbackContent.style.color = '#000';
+                // Ensure modal elements exist before trying to set properties
+                if (!modal || !modalCardDiv || !modalCardImage || !modalCardName || !modalPositionName || !modalCardDescription || !modalCardMeaning || !modalCardContext) {
+                     console.error("Modal elements not found in DOM!");
+                     // Optionally, show an alert to the user
+                     // alert("Error: Could not display card details. Modal elements are missing.");
+                     return; // Stop execution if elements are missing
                 }
 
-                // Display Card Name + Orientation
+                // Update modal card visual (image)
+                modalCardImage.src = `images/${item.card.name.replace(/\s+/g, '_').toLowerCase()}.jpg`;
+
+                 // Handle image error for the modal image
+                 modalCardImage.onerror = function() {
+                     this.style.display = 'none'; // Hide image if it fails
+                     // The text elements below will provide the details
+                 };
+                 // Ensure image is visible by default before error check
+                 modalCardImage.style.display = 'block';
+
+
+                // Update textual details below the card visual
                 modalCardName.textContent = `${item.card.name} (${item.isReversed ? 'Reversed' : 'Upright'})`;
-
-                // Display Position Name and Description
-                 modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
-
-                // Display General Description from the card data
+                modalPositionName.textContent = `Position: ${item.position} (${item.positionDescription})`;
                 modalCardDescription.textContent = `Description: ${item.card.description}`;
-
-                // Display the specific meaning for the drawn orientation
                 modalCardMeaning.textContent = `Meaning (This Orientation): ${item.meaning}`;
-
-                // Refined Contextual Meaning display for the modal - This is already captured by showing
-                // the position and the meaning specific to the orientation drawn in that position.
-                // We can add a synthesized sentence here if desired, but the current structure is clear.
-                // Let's make this section slightly more explicit about how the position shapes the meaning.
                 modalCardContext.textContent = `How this applies in the ${item.position} position (${item.positionDescription}): This card's energy of "${item.meaning}" is influencing the aspect of your reading related to ${item.positionDescription}.`;
+
+                 // Update modal card container background color (optional, matches physical card color)
+                 if (item.card.color) {
+                     modalCardDiv.style.backgroundColor = item.card.color;
+                      // Adjust text color for readability based on background color (simple example)
+                     const hex = item.card.color.replace('#', '');
+                     const r = parseInt(hex.substring(0, 2), 16);
+                     const g = parseInt(hex.substring(2, 4), 16);
+                     const b = parseInt(hex.substring(4, 6), 16);
+                     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                      // Note: This color applies to text *within* the modalCardDiv, not the text elements *below* it.
+                      // Styles for text *below* the modalCardDiv should be handled by their specific IDs/classes in CSS.
+                      modalCardDiv.style.color = luminance > 0.5 ? '#000' : '#fff'; // Text color within the modal card visual div
+                 } else {
+                     modalCardDiv.style.backgroundColor = '#fff';
+                      modalCardDiv.style.color = '#000';
+                 }
 
 
                 modal.style.display = 'flex';
-            }, { once: true }); // Use once: true so it only flips the first click
+            }, { once: true });
 
             cardsDiv.appendChild(flipContainer);
 
@@ -1139,22 +1215,33 @@ document.getElementById('start').addEventListener('click', () => {
     });
 });
 
-// Modal Close (No changes needed here)
+// Modal Close
 document.getElementById('closeModal').addEventListener('click', () => {
     document.getElementById('cardModal').style.display = 'none';
 });
 
-// Full Interpretation (No changes needed here - just calls the enhanced function)
+// Full Interpretation
 document.getElementById('interpret').addEventListener('click', () => {
+    console.log("Interpret button clicked.");
+     if (!reading) {
+         console.warn("No reading data available to interpret.");
+         document.getElementById('interpretation').innerHTML = "<p style='color: red;'>Please start a reading first.</p>";
+         document.getElementById('interpretation').style.display = 'block';
+         return;
+     }
     // Pass personal info to interpretation generation
-    // The function now returns HTML
     const interpretationHTML = generateInterpretation(reading, readerName, question, spreadType, lifePath, zodiacSign);
-    // Use innerHTML to render the HTML
-    document.getElementById('interpretation').innerHTML = interpretationHTML;
-    document.getElementById('interpretation').style.display = 'block';
+    const interpretationDiv = document.getElementById('interpretation');
+    if (interpretationDiv) { // Check if interpretation div exists
+        interpretationDiv.innerHTML = interpretationHTML;
+        interpretationDiv.style.display = 'block';
+        console.log("Interpretation displayed.");
+    } else {
+         console.error("Interpretation display element not found.");
+    }
 });
 
-// New Reading (No changes needed here)
+// New Reading
 document.getElementById('newReading').addEventListener('click', () => {
     document.querySelector('.form').style.display = 'block';
     document.getElementById('reading').style.display = 'none';
@@ -1164,8 +1251,13 @@ document.getElementById('newReading').addEventListener('click', () => {
     document.getElementById('readerName').value = ''; // Clear name
     document.getElementById('readerDob').value = ''; // Clear DOB
     document.getElementById('reversals').checked = true;
-    document.getElementById('personalInfoDisplay').textContent = ""; // Clear personal info display
-     document.getElementById('questionDisplay').textContent = ""; // Clear question display
+
+    const personalInfoDisplayElem = document.getElementById('personalInfoDisplay');
+    if (personalInfoDisplayElem) personalInfoDisplayElem.textContent = ""; // Clear personal info display
+
+     const questionDisplayElem = document.getElementById('questionDisplay');
+     if (questionDisplayElem) questionDisplayElem.textContent = ""; // Clear question display
+
     lifePath = null; // Reset
     zodiacSign = null; // Reset
      reading = null; // Clear previous reading data
