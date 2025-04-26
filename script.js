@@ -715,8 +715,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
              }
 
              if (!relationshipPatternFound) {
-                 interpretationHTML += "<li>No specific relationship patterns were identified among the drawn cards based on predefined combinations. The focus rests more strongly on the individual card messages and overall themes.</li>`;
-             }
+                 interpretationHTML += "<li>No specific relationship patterns were identified among the drawn cards based on predefined combinations. The focus rests more strongly on the individual card messages and overall themes.</li>`;             }
             interpretationHTML += "</ul>";
 
         } catch(e) {
