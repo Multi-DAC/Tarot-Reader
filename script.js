@@ -612,7 +612,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
 
 
                 if (dominantColorName) {
-                     interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong> (associated with ${dominantColorHex}), which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
+                     interpretationHTML += `<li>The dominant color theme is <strong>${dominantColorName}</strong>, which resonates strongly with themes of ${getColorMeaning(dominantColorName)}. Consider how these energies color the entire reading.</li>`;
                 }
 
 
