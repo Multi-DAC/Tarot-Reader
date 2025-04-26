@@ -457,11 +457,11 @@ function drawCards(deck, num, useReversals) {
 function categorizeQuestion(question) {
     const qLower = question.toLowerCase();
     if (/love|relationship|partner|heart/i.test(qLower)) return "love and relationships";
-    if /career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
-    if /health|body|energy|wellness/i.test(qLower)) return "health and well-being";
-    if /spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
-    if /family|home|move|living/i.test(qLower)) return "home and family";
-    if /decision|choice|direction/i.test(qLower)) return "a decision or path forward";
+    if (/career|job|work|business|money|finance|wealth/i.test(qLower)) return "career and finances";
+    if (/health|body|energy|wellness/i.test(qLower)) return "health and well-being";
+    if (/spiritual|growth|self|meaning|purpose/i.test(qLower)) return "spiritual path and personal growth";
+    if (/family|home|move|living/i.test(qLower)) return "home and family";
+    if (/decision|choice|direction/i.test(qLower)) return "a decision or path forward";
     return "yourself"; // Keep "yourself" as requested
 }
 
