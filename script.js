@@ -319,19 +319,10 @@ function calculateLifePath(dobString) {
 
         let lifePath = reducedMonth + reducedDay + reducedYear;
 
-        // Check if intermediate sum is a Master Number before final reduction
-         if (lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
-            lifePath = reduceNumber(lifePath);
-        }
-         // Final check in case a Master Number results in a single digit after adding (e.g., 11+11+11 = 33, but 1+1+1+1+1+1 = 6, should not reduce 33)
-         // This double-check isn't strictly necessary with the logic above but is harmless.
-         // A more precise check is: if (lifePath > 9 && ![11, 22, 33].includes(lifePath)) { lifePath = reduceNumber(lifePath); }
-         // Let's use the simpler, slightly less perfect version from the original code for minimal change impact.
-         // Keep the original logic for Master Numbers from the provided code:
-         // if (lifePath > 9 && lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
-         //     lifePath = reduceNumber(lifePath);
-         // }
-
+        // Keep the original logic for Master Numbers from the provided code:
+         if (lifePath > 9 && lifePath !== 11 && lifePath !== 22 && lifePath !== 33) {
+             lifePath = reduceNumber(lifePath);
+         }
 
         return lifePath;
     } catch (e) {
@@ -898,7 +889,7 @@ function generateInterpretation(reading, readerName, question, spreadType, lifeP
              if (lifePath !== null || zodiacSign) {
                  let personalSynthesis = "";
                  // Check if personalConnectionsFound is true *before* adding this sentence
-                 if (personalConnectionsFound) {
+                 if (personalConnectionsFound) { // <-- Use the flag declared at the top
                      if (lifePath !== null && zodiacSign) {
                          personalSynthesis = `Considering your innate energies as a Life Path ${lifePath} and a ${zodiacSign}, this reading may be particularly illuminating aspects of your core purpose or how your natural traits are influencing or being influenced by the current situation.`;
                      } else if (lifePath !== null) {
@@ -1225,8 +1216,13 @@ document.getElementById('interpret').addEventListener('click', () => {
     console.log("Interpret button clicked.");
      if (!reading) {
          console.warn("No reading data available to interpret.");
-         document.getElementById('interpretation').innerHTML = "<p style='color: red;'>Please start a reading first.</p>";
-         document.getElementById('interpretation').style.display = 'block';
+         const interpretationDiv = document.getElementById('interpretation');
+         if (interpretationDiv) {
+             interpretationDiv.innerHTML = "<p style='color: red;'>Please start a reading first.</p>";
+             interpretationDiv.style.display = 'block';
+         } else {
+              console.error("Interpretation display element not found.");
+         }
          return;
      }
     // Pass personal info to interpretation generation
